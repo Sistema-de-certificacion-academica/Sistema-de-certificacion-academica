@@ -1,0 +1,208 @@
+# [HU-12] Crear plantilla de certificado
+
+## 📖 Historia de Usuario
+
+**Como** administrador del sistema
+
+**Quiero** crear una plantilla de certificado definiendo su nombre, tipo de certificado y los campos dinámicos que la conforman
+
+**Para** tener formatos reutilizables que el sistema pueda usar para generar certificados académicos con la información 
+correcta de cada estudiante
+
+## 🔁 Flujo Esperado
+
+- El administrador ingresa el nombre, tipo de certificado 
+  y campos dinámicos de la plantilla desde la interfaz.
+- El sistema consume el endpoint `POST /api/v1/plantillas` 
+  con los datos de la plantilla.
+- El backend valida que la plantilla tenga al menos un 
+  campo dinámico.
+- El backend valida que el tipo de certificado sea válido 
+  en el sistema.
+- Si los datos son correctos, la plantilla queda creada 
+  y activa en el sistema.
+- Se retorna la información de la plantilla creada con 
+  su id asignado.
+
+## ✅ Criterios de Aceptación
+
+### 1. 🔍 Estructura y lógica del servicio
+
+- [ ] Se expone un endpoint `POST /api/v1/plantillas` accesible 
+      solo para rol ADMINISTRADOR.
+- [ ] La plantilla debe tener mínimo un campo dinámico 
+      para poder guardarse.
+- [ ] El tipo de certificado debe ser uno de los permitidos 
+      en el sistema.
+- [ ] Los campos nombre, tipo_certificado y estructura 
+      son obligatorios.
+- [ ] La plantilla queda activa por defecto al momento 
+      de su creación.
+
+### 2. 📆 Estructura de la información
+
+- [ ] La respuesta exitosa tiene la siguiente estructura:
+
+```json
+{
+  "success": true,
+  "statusCode": 201,
+  "message": "Plantilla creada correctamente",
+  "data": {
+    "id": 5,
+    "nombre": "Plantilla certificado de estudio",
+    "tipo_certificado": "CERTIFICADO_ESTUDIO",
+    "estructura": {
+      "campos": [
+        "nombre_estudiante",
+        "programa_academico",
+        "fecha_emision"
+      ]
+    },
+    "activa": true
+  }
+}
+```
+
+- [ ] Si la plantilla no tiene campos dinámicos, el backend 
+      retorna:
+
+```json
+{
+  "success": false,
+  "statusCode": 400,
+  "message": "No fue posible crear la plantilla",
+  "error": {
+    "error_code": "BAD_REQUEST",
+    "details": "La plantilla debe tener al menos un campo dinámico",
+    "timestamp": "2026-03-18T10:00:00Z"
+  }
+}
+```
+
+## 🔧 Notas Técnicas
+
+### 🚀 Endpoints
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| `POST` | `/api/v1/plantillas` | Crea una nueva plantilla de certificado |
+
+### 📤 Ejemplo de Respuesta JSON
+
+```json
+{
+  "success": true,
+  "statusCode": 201,
+  "message": "Plantilla creada correctamente",
+  "data": {
+    "id": 5,
+    "nombre": "Plantilla certificado de estudio",
+    "tipo_certificado": "CERTIFICADO_ESTUDIO",
+    "estructura": {
+      "campos": [
+        "nombre_estudiante",
+        "programa_academico",
+        "fecha_emision"
+      ]
+    },
+    "activa": true
+  }
+}
+```
+
+## 🧪 Requisitos de Pruebas
+
+### 🔍 Casos de Prueba Funcional
+
+### ✅ Caso 1: Creación exitosa de plantilla
+
+- **Precondición:** El administrador está autenticado y los 
+  datos de la plantilla son válidos.
+- **Acción:** Ejecutar `POST /api/v1/plantillas` con nombre, 
+  tipo_certificado y al menos un campo dinámico.
+- **Resultado esperado:**
+  - Código HTTP 201 Created
+  - Campo `success` igual a `true`
+  - Campo `activa` igual a `true`
+  - Campo `id` presente y asignado automáticamente
+
+### ❌ Caso 2: Plantilla sin campos dinámicos
+
+- **Precondición:** El administrador envía la plantilla con 
+  el array de campos vacío.
+- **Acción:** Ejecutar `POST /api/v1/plantillas` con 
+  `"campos": []`.
+- **Resultado esperado:**
+  - Código HTTP 400 Bad Request
+  - Campo `details` indica que se requiere al menos un 
+    campo dinámico
+
+### ❌ Caso 3: Tipo de certificado no válido
+
+- **Precondición:** El administrador envía un tipo de 
+  certificado que no existe en el sistema.
+- **Acción:** Ejecutar `POST /api/v1/plantillas` con 
+  `tipo_certificado: "CERTIFICADO_NOTAS"`.
+- **Resultado esperado:**
+  - Código HTTP 400 Bad Request
+  - Campo `details` indica que el tipo de certificado 
+    no es válido
+
+### ❌ Caso 4: Campos obligatorios vacíos
+
+- **Precondición:** El administrador envía la petición 
+  sin el campo nombre.
+- **Acción:** Ejecutar `POST /api/v1/plantillas` sin 
+  el campo nombre.
+- **Resultado esperado:**
+  - Código HTTP 400 Bad Request
+  - Campo `details` indica qué campo obligatorio falta
+
+### ❌ Caso 5: Acceso sin rol administrador
+
+- **Precondición:** Un usuario con rol ESTUDIANTE intenta 
+  crear una plantilla.
+- **Acción:** Ejecutar `POST /api/v1/plantillas` con 
+  token de estudiante.
+- **Resultado esperado:**
+  - Código HTTP 403 Forbidden
+  - Campo `details` indica que no tiene permisos
+
+## ✅ Definición de Hecho
+
+### 📦 Alcance Funcional
+
+- [ ] El endpoint crea correctamente la plantilla con sus 
+      campos dinámicos y tipo de certificado asociado.
+- [ ] No permite crear plantillas sin campos dinámicos.
+- [ ] La plantilla queda activa por defecto al crearse.
+- [ ] Solo el administrador puede ejecutar este endpoint.
+- [ ] La respuesta JSON cumple con el contrato definido.
+
+### 🧪 Pruebas Completadas
+
+- [ ] Se ejecutaron pruebas unitarias para plantilla válida, 
+      sin campos y con tipo inválido.
+- [ ] Se probó el envío sin campos obligatorios.
+- [ ] Se probó el acceso con rol no autorizado.
+- [ ] Las pruebas funcionales están documentadas y pasadas.
+
+### 📄 Documentación Técnica
+
+- [ ] Endpoint documentado en Swagger / OpenAPI.
+- [ ] Se describe:
+  - Propósito del endpoint
+  - Campos de entrada y salida
+  - Ejemplo de respuesta exitosa
+  - Ejemplo de error
+
+### 🔐 Manejo de Errores
+
+- [ ] Se retorna HTTP 400 cuando faltan campos obligatorios 
+      o el tipo de certificado es inválido.
+- [ ] Se retorna HTTP 400 cuando la plantilla no tiene 
+      campos dinámicos.
+- [ ] Se retorna HTTP 403 cuando el rol no tiene permiso.
+- [ ] El campo `message` incluye texto claro en todos los 
+      casos de error.
