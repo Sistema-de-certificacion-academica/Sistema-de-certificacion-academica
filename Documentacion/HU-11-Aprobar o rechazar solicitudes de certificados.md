@@ -11,16 +11,15 @@ ser procesadas.
 
 ## 🔁 Flujo Esperado
 
-- El administrador revisa las solicitudes pendientes desde 
-  la interfaz.
-- El administrador selecciona una solicitud y elige aprobarla 
-  o rechazarla.
+- El cliente envía una petición PUT al endpoint 
+  ``/api/v1/solicitudes/{id}/estado`` con el nuevo 
+  estado y motivo de rechazo si aplica en el 
+  cuerpo de la solicitud.
 - El sistema consume el endpoint `PUT /api/v1/solicitudes/{id}/estado` 
   con el nuevo estado.
 - El backend valida que la solicitud exista y esté en 
   estado PENDIENTE.
-- Si se aprueba, el estado cambia a APROBADA y el sistema 
-  queda listo para iniciar la generación del certificado.
+- Si se aprueba, el estado cambia a APROBADA y el sistema queda listo para iniciar la generación del certificado.
 - Si se rechaza, el estado cambia a RECHAZADA con un motivo.
 - Se retorna la solicitud con su estado actualizado.
 
@@ -28,17 +27,15 @@ ser procesadas.
 
 ### 1. 🔍 Estructura y lógica del servicio
 
-- [ ] Se expone un endpoint `PUT /api/v1/solicitudes/{id}/estado` 
-      accesible solo para rol ADMINISTRADOR.
-- [ ] Se valida que la solicitud con el id proporcionado 
-      exista en el sistema.
-- [ ] Solo se puede aprobar o rechazar una solicitud en 
-      estado PENDIENTE.
-- [ ] El campo estado solo acepta los valores APROBADA 
-      o RECHAZADA.
+- [ ] Se expone un endpoint `PUT /api/v1/solicitudes/{id}/estado` accesible solo para rol ADMINISTRADOR.
+- [ ] Se valida que la solicitud con el id proporcionado exista en el sistema.
+- [ ] Solo se puede aprobar o rechazar una solicitud en estado PENDIENTE.
+- [ ] Si el campo estado contiene un valor diferente a 
+      APROBADA o RECHAZADA el sistema retorna HTTP 400 
+      con mensaje descriptivo.
 - [ ] Si se rechaza la solicitud el campo motivo_rechazo 
       es obligatorio.
-- [ ] Una solicitud aprobada no puede volver a estado PENDIENTE.
+- [ ] Si se intenta modificar una solicitud ya aprobada o rechazada el sistema retorna HTTP 409 con mensaje descriptivo sin modificar ningún dato.
 
 ### 2. 📆 Estructura de la información
 

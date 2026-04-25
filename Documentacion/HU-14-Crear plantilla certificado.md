@@ -11,16 +11,13 @@ correcta de cada estudiante
 
 ## 🔁 Flujo Esperado
 
-- El administrador ingresa el nombre, tipo de certificado 
-  y campos dinámicos de la plantilla desde la interfaz.
-- El sistema consume el endpoint `POST /api/v1/plantillas` 
-  con los datos de la plantilla.
+- El cliente envía una petición POST al endpoint 
+  ``/api/v1/plantillas`` con el nombre, tipo de certificado y campos dinámicos en el cuerpo de la solicitud.
+- El sistema consume el endpoint `POST /api/v1/plantillas`  con los datos de la plantilla.
 - El backend valida que la plantilla tenga al menos un 
   campo dinámico.
-- El backend valida que el tipo de certificado sea válido 
-  en el sistema.
-- Si los datos son correctos, la plantilla queda creada 
-  y activa en el sistema.
+- El backend valida que el tipo de certificado sea válido   en el sistema.
+- Si los datos son correctos, la plantilla queda creada   y activa en el sistema.
 - Se retorna la información de la plantilla creada con 
   su id asignado.
 
@@ -30,14 +27,16 @@ correcta de cada estudiante
 
 - [ ] Se expone un endpoint `POST /api/v1/plantillas` accesible 
       solo para rol ADMINISTRADOR.
-- [ ] La plantilla debe tener mínimo un campo dinámico 
-      para poder guardarse.
+- [ ] Si el array de campos dinámicos está vacío o no 
+      se incluye en la petición el sistema retorna 
+      HTTP 400 con mensaje descriptivo.
 - [ ] El tipo de certificado debe ser uno de los permitidos 
       en el sistema.
 - [ ] Los campos nombre, tipo_certificado y estructura 
       son obligatorios.
-- [ ] La plantilla queda activa por defecto al momento 
-      de su creación.
+- [ ] El campo activa en la respuesta siempre retorna 
+      true al crear una plantilla nueva sin importar 
+      si se envía o no en la petición.
 
 ### 2. 📆 Estructura de la información
 

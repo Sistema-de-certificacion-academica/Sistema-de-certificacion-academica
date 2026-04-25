@@ -11,8 +11,10 @@ estudiante, un código UUID único y firma digital que garantice su autenticidad
 
 ## 🔁 Flujo Esperado
 
-- El administrador selecciona una solicitud aprobada y una 
-  plantilla activa desde la interfaz.
+- El cliente envía una petición POST al endpoint 
+  ``/api/v1/certificados`` con el id de la solicitud 
+  aprobada y el id de la plantilla en el cuerpo 
+  de la solicitud.
 - El sistema consume el endpoint `POST /api/v1/certificados` 
   con el id de la solicitud y el id de la plantilla.
 - El backend valida que la solicitud exista y esté en 
@@ -36,13 +38,13 @@ estudiante, un código UUID único y firma digital que garantice su autenticidad
       solo para rol ADMINISTRADOR.
 - [ ] Se valida que la solicitud exista y esté en estado APROBADA.
 - [ ] Se valida que la plantilla exista y esté activa.
-- [ ] El UUID generado es único y no puede repetirse en 
-      ningún otro certificado.
-- [ ] El PDF generado incluye los campos dinámicos de la 
-      plantilla completados con los datos del estudiante.
-- [ ] El certificado queda registrado con estado GENERADO.
-- [ ] El certificado generado queda automáticamente almacenado en el repositorio con su uuid, ruta del archivo PDF 
+- [ ] El UUID se genera con el estándar UUID4 y el sistema verifica que no exista en la base de datos antes  de asignarlo. Si existiera genera uno nuevo 
+      automáticamente.
+- [ ] El PDF generado incluye los campos dinámicos de la plantilla completados con los datos del estudiante.
+- [ ] El campo estado en la respuesta retorna GENERADO 
+      y el certificado queda almacenado automáticamente en el repositorio con su uuid, ruta del PDF 
       y fecha de emisión.
+- [ ] El certificado generado queda automáticamente almacenado en el repositorio con su uuid, ruta del archivo PDF y fecha de emisión.
 
 ### 2. 📆 Estructura de la información
 

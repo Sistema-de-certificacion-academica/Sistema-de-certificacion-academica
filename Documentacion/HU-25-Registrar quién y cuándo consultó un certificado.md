@@ -14,8 +14,8 @@ fue verificado cada certificado.
 
 ## 🔁 Flujo Esperado
 
-- El verificador consulta un certificado mediante 
-  HU-19 verificar validez.
+- El sistema ejecuta automáticamente una petición POST 
+  al endpoint ``/api/v1/verificaciones/consultas`` tras cada verificación realizada en HU-23.
 - Automáticamente el sistema consume el endpoint 
   `POST /api/v1/verificaciones/consultas` internamente.
 - El backend guarda el UUID consultado, timestamp 
@@ -34,13 +34,12 @@ fue verificado cada certificado.
       ejecuta automáticamente tras cada verificación.
 - [ ] El registro guarda UUID consultado, timestamp 
       e IP del verificador.
-- [ ] El registro se guarda independientemente de si 
-      el certificado existe o no.
+- [ ] El sistema guarda el registro con uuid_consultado, ip_verificador y timestamp independientemente de si el UUID existe o no en el repositorio, sin afectar la respuesta retornada al cliente.
 - [ ] El administrador puede consultar el historial 
       de verificaciones con 
       `GET /api/v1/verificaciones/consultas`.
-- [ ] El historial puede filtrarse por UUID para ver 
-      cuántas veces fue verificado un certificado.
+- [ ] Con el parámetro ?uuid=550e8400 el sistema retorna únicamente los registros donde uuid_consultado 
+      coincida con el valor proporcionado.
 
 ### 2. 📆 Estructura de la información
 

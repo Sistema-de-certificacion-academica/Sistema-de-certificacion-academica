@@ -10,8 +10,9 @@
 
 ## 🔁 Flujo Esperado
 
-- El administrador accede a la sección de usuarios desde 
-  la interfaz.
+- El cliente envía una petición GET al endpoint 
+  ``/api/v1/usuarios`` con o sin el parámetro 
+  de filtro ?rol=ESTUDIANTE.
 - El sistema consume el endpoint `GET /api/v1/usuarios` 
   con o sin filtro de rol.
 - El backend retorna todos los usuarios registrados o 
@@ -30,7 +31,7 @@
       usuarios de ese rol.
 - [ ] Los roles válidos para filtrar son ESTUDIANTE 
       y ADMINISTRADOR.
-- [ ] Si no hay usuarios registrados retorna lista vacía.
+- [ ] Si no hay usuarios registrados el sistema retorna HTTP 200 con campo data como array vacío [].
 
 ### 2. 📆 Estructura de la información
 

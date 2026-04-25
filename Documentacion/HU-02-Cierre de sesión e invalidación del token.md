@@ -10,9 +10,9 @@
 
 ## 🔁 Flujo Esperado
 
-- El usuario solicita cerrar sesión desde la interfaz.
-- El sistema consume el endpoint `POST /api/v1/auth/logout` enviando 
-  el token en el header `Authorization: Bearer {token}`.
+- El cliente envía una petición POST al endpoint 
+  `/api/v1/auth/logout` con el token en el header Authorization.
+- El sistema consume el endpoint `POST /api/v1/auth/logout` enviando el token en el header `Authorization: Bearer {token}`.
 - El backend valida que el token sea vigente y pertenezca a una sesión activa.
 - El sistema invalida el token y lo marca como revocado.
 - Se retorna confirmación de cierre de sesión exitoso.

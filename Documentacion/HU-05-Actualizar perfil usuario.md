@@ -10,13 +10,11 @@
 
 ## 🔁 Flujo Esperado
 
-- El administrador selecciona el usuario a modificar desde 
-  la interfaz.
-- El sistema consume el endpoint `PUT /api/v1/usuarios/{id}` 
-  con los datos a actualizar.
+- El cliente envía una petición PUT al endpoint 
+  `/api/v1/usuarios/{id}` con los datos a actualizar en el cuerpo de la solicitud.
+- El sistema consume el endpoint `PUT /api/v1/usuarios/{id}`con los datos a actualizar.
 - El backend valida que el usuario exista en el sistema.
-- El backend valida que si se cambia el correo, el nuevo correo 
-  no esté registrado por otro usuario.
+- El backend valida que si se cambia el correo, el nuevo correo no esté registrado por otro usuario.
 - Si los datos son válidos, el perfil queda actualizado.
 - Se retorna la información actualizada del usuario.
 
@@ -24,14 +22,11 @@
 
 ### 1. 🔍 Estructura y lógica del servicio
 
-- [ ] Se expone un endpoint `PUT /api/v1/usuarios/{id}` accesible 
-      solo para rol ADMINISTRADOR.
-- [ ] Se valida que el usuario con el id proporcionado exista 
-      en el sistema.
-- [ ] Si se actualiza el correo, se valida que no esté en uso 
-      por otro usuario.
+- [ ] Se expone un endpoint `PUT /api/v1/usuarios/{id}` accesible solo para rol ADMINISTRADOR.
+- [ ] Se valida que el usuario con el id proporcionado exista en el sistema.
+- [ ] Si se actualiza el correo, se valida que no esté en uso por otro usuario.
 - [ ] El rol solo puede ser ESTUDIANTE o ADMINISTRADOR.
-- [ ] No se permite desactivar un usuario desde este endpoint.
+- [ ] Si la petición incluye el campo activo, el sistema lo ignora y no modifica el estado del usuario.
 
 ### 2. 📆 Estructura de la información
 

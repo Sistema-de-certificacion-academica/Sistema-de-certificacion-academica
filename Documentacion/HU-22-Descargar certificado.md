@@ -10,8 +10,9 @@
 
 ## 🔁 Flujo Esperado
 
-- El usuario selecciona el certificado que desea descargar 
-  desde la interfaz.
+- El cliente envía una petición GET al endpoint 
+  ``/api/v1/repositorio/descarga/{uuid}`` con el 
+  UUID como parámetro de ruta.
 - El sistema consume el endpoint 
   `GET /api/v1/repositorio/descarga/{uuid}`.
 - El backend valida que el UUID exista en el repositorio.
@@ -28,11 +29,12 @@
       `GET /api/v1/repositorio/descarga/{uuid}` accesible 
       para rol ESTUDIANTE y ADMINISTRADOR.
 - [ ] Se valida que el UUID exista en el repositorio.
-- [ ] No se puede descargar un certificado con estado ANULADO.
+- [ ] Si el certificado tiene estado ANULADO el sistema retorna HTTP 409 con mensaje descriptivo sin 
+      retornar ningún archivo.
 - [ ] Un estudiante solo puede descargar sus propios 
       certificados.
 - [ ] El administrador puede descargar cualquier certificado.
-- [ ] El archivo retornado es el PDF generado en el módulo 5.
+- [ ] El sistema retorna el archivo PDF almacenado en la ruta registrada en el repositorio para ese UUID,   con header Content-Type: application/pdf y     Content-Disposition: attachment.
 
 ### 2. 📆 Estructura de la información
 

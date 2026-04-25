@@ -11,8 +11,8 @@ antes de que la universidad la procese.
 
 ## 🔁 Flujo Esperado
 
-- El estudiante selecciona la solicitud que desea cancelar 
-  desde la interfaz.
+- El cliente envía una petición DELETE al endpoint 
+  ``/api/v1/solicitudes/{id}`` con el id de la solicitud como parámetro de ruta.
 - El sistema consume el endpoint `DELETE /api/v1/solicitudes/{id}`.
 - El backend valida que la solicitud exista y pertenezca 
   al estudiante autenticado.
@@ -27,11 +27,9 @@ antes de que la universidad la procese.
 
 - [ ] Se expone un endpoint `DELETE /api/v1/solicitudes/{id}` 
       accesible solo para rol ESTUDIANTE.
-- [ ] Se valida que la solicitud exista y pertenezca al 
-      estudiante autenticado.
+- [ ] Se valida que la solicitud exista y pertenezca al  estudiante autenticado.
 - [ ] Solo se puede cancelar una solicitud en estado PENDIENTE.
-- [ ] No se puede cancelar una solicitud en estado APROBADA 
-      o RECHAZADA.
+- [ ] Si la solicitud está en estado APROBADA o RECHAZADA el sistema retorna HTTP 409 con mensaje descriptivo sin modificar ningún dato.
 - [ ] Un estudiante no puede cancelar solicitudes de 
       otros estudiantes.
 

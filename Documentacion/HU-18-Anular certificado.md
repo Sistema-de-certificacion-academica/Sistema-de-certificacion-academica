@@ -13,8 +13,8 @@ los certificados emitidos.
 
 ## 🔁 Flujo Esperado
 
-- El administrador identifica el certificado a anular 
-  desde la interfaz.
+- El cliente envía una petición PATCH al endpoint 
+  ``/api/v1/certificados/{id}/estado`` con estado ANULADO en el cuerpo de la solicitud.
 - El sistema consume el endpoint 
   `PATCH /api/v1/certificados/{id}/estado` con estado ANULADO.
 - El backend valida que el certificado exista en el sistema.
@@ -36,8 +36,10 @@ los certificados emitidos.
 - [ ] Se valida que el certificado con el id proporcionado 
       exista en el sistema.
 - [ ] No se puede anular un certificado que ya está anulado.
-- [ ] El PDF y el registro del certificado se conservan 
-      en el sistema después de la anulación.
+- [ ] Después de la anulación el endpoint 
+      ``/api/v1/repositorio/certificados/{uuid}`` sigue 
+      retornando el registro con estado ANULADO 
+      y la ruta del PDF se conserva en la base de datos.
 - [ ] Un certificado anulado no puede descargarse ni 
       verificarse como válido.
 

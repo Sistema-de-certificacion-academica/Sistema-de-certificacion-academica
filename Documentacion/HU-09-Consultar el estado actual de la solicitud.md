@@ -11,12 +11,10 @@ directamente.
 
 ## 🔁 Flujo Esperado
 
-- El estudiante selecciona la solicitud que quiere consultar 
-  desde la interfaz.
-- El sistema consume el endpoint `GET /api/v1/solicitudes/{id}` 
-  con el id de la solicitud.
-- El backend valida que la solicitud exista y pertenezca 
-  al estudiante autenticado.
+- El cliente envía una petición GET al endpoint 
+  ``/api/v1/solicitudes/{id}`` con el id de la solicitud como parámetro de ruta.
+- El sistema consume el endpoint `GET /api/v1/solicitudes/{id}` con el id de la solicitud.
+- El backend valida que la solicitud exista y pertenezca al estudiante autenticado.
 - Se retorna la información de la solicitud con su estado actual.
 
 ## ✅ Criterios de Aceptación
@@ -30,8 +28,7 @@ directamente.
 - [ ] Un estudiante solo puede consultar sus propias solicitudes, 
       no las de otros estudiantes.
 - [ ] El administrador puede consultar cualquier solicitud.
-- [ ] El estado retornado puede ser PENDIENTE, APROBADA 
-      o RECHAZADA.
+- [ ] El campo estado en la respuesta contiene únicamente uno de estos valores: PENDIENTE, APROBADA o RECHAZADA. Cualquier otro valor es un error del sistema.
 
 ### 2. 📆 Estructura de la información
 

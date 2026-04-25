@@ -11,8 +11,9 @@ necesidad de buscarlas una por una.
 
 ## 🔁 Flujo Esperado
 
-- El administrador accede a la sección de solicitudes 
-  desde la interfaz.
+- El cliente envía una petición GET al endpoint 
+  ``/api/v1/solicitudes`` con o sin el parámetro 
+  de filtro ?estado=PENDIENTE.
 - El sistema consume el endpoint `GET /api/v1/solicitudes` 
   con o sin filtro de estado.
 - El backend retorna todas las solicitudes o solo las 
@@ -31,7 +32,7 @@ necesidad de buscarlas una por una.
       solicitudes de ese estado.
 - [ ] Los estados válidos para filtrar son PENDIENTE, 
       APROBADA y RECHAZADA.
-- [ ] Si no hay solicitudes retorna lista vacía.
+- [ ] Si no hay solicitudes el sistema retorna HTTP 200 con campo data como array vacío [].
 
 ### 2. 📆 Estructura de la información
 

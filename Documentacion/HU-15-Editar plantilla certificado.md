@@ -10,8 +10,8 @@
 
 ## 🔁 Flujo Esperado
 
-- El administrador selecciona la plantilla a editar desde 
-  la interfaz.
+- El cliente envía una petición PUT al endpoint 
+  ``/api/v1/plantillas/{id}`` con los datos a actualizar en el cuerpo de la solicitud.
 - El sistema consume el endpoint `PUT /api/v1/plantillas/{id}` 
   con los datos a actualizar.
 - El backend valida que la plantilla exista en el sistema.
@@ -29,8 +29,9 @@
       accesible solo para rol ADMINISTRADOR.
 - [ ] Se valida que la plantilla con el id proporcionado 
       exista en el sistema.
-- [ ] No se puede editar una plantilla que ya haya sido 
-      usada para generar certificados.
+- [ ] Si la plantilla tiene al menos un certificado 
+      generado asociado el sistema retorna HTTP 409 
+      con mensaje descriptivo sin modificar ningún dato.
 - [ ] La plantilla editada debe seguir teniendo al menos 
       un campo dinámico.
 - [ ] El tipo de certificado actualizado debe ser uno de 

@@ -12,7 +12,7 @@ perfil y se proteja la información de otros usuarios y procesos.
 
 ## 🔁 Flujo Esperado
 
-- El usuario realiza cualquier petición al sistema con su token JWT.
+- El cliente envía una petición a cualquier endpoint protegido incluyendo el token JWT en el header Authorization
 - El sistema extrae el rol del usuario desde el token antes de 
   procesar la petición.
 - El backend verifica que el rol tenga permiso para acceder al 
@@ -25,8 +25,13 @@ perfil y se proteja la información de otros usuarios y procesos.
 
 ### 1. 🔍 Estructura y lógica del servicio
 
-- [ ] Cada endpoint del sistema valida el rol del token antes de 
-      ejecutarse.
+- [ ] Los endpoints de gestión de usuarios, solicitudes 
+      y plantillas validan el rol ADMINISTRADOR antes 
+      de ejecutarse.
+- [ ] Los endpoints de solicitudes y certificados validan 
+      el rol ESTUDIANTE antes de ejecutarse.
+- [ ] Los endpoints de verificación son públicos y no 
+      requieren validación de rol.
 - [ ] Los roles existentes son únicamente: ESTUDIANTE, ADMINISTRADOR 
       y EMPRESA_EXTERNA.
 - [ ] Un ESTUDIANTE no puede acceder a endpoints exclusivos de 

@@ -10,7 +10,9 @@
 
 ## 🔁 Flujo Esperado
 
-- El verificador ingresa el UUID del certificado en la interfaz pública de verificación de integridad.
+- El cliente envía una petición GET al endpoint 
+  ``/api/v1/verificaciones/integridad/{uuid}`` con el 
+  UUID como parámetro de ruta.
 - El sistema consume el endpoint 
   `GET /api/v1/verificaciones/integridad/{uuid}`.
 - El backend busca el certificado en el repositorio usando el UUID proporcionado.
@@ -27,10 +29,13 @@
 - [ ] Se expone un endpoint 
       `GET /api/v1/verificaciones/integridad/{uuid}` 
       de acceso público, no requiere autenticación.
-- [ ] Al generar el certificado se calcula y almacena 
-      su hash SHA-256 en la base de datos.
-- [ ] La validación compara el hash del archivo actual 
-      con el hash almacenado al momento de la emisión.
+- [ ] Al ejecutarse HU-17 el sistema calcula el hash 
+      SHA-256 del PDF generado y lo almacena en la 
+      base de datos junto con los metadatos del certificado.
+- [ ] El sistema recalcula el hash SHA-256 del archivo 
+      PDF actual y lo compara con el hash almacenado 
+      en la base de datos. Si coinciden retorna 
+      integro: true, si no coinciden retorna integro: false.
 - [ ] Si los hashes coinciden se retorna íntegro en true.
 - [ ] Si los hashes no coinciden se retorna íntegro en false.
 - [ ] Si el UUID no existe se retorna error 404.

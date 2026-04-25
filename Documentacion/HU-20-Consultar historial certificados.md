@@ -10,8 +10,9 @@
 
 ## 🔁 Flujo Esperado
 
-- El usuario accede a la sección de historial de certificados 
-  desde la interfaz.
+- El cliente envía una petición GET al endpoint 
+ `` /api/v1/repositorio/estudiantes/{id}`` con el id 
+  del estudiante como parámetro de ruta.
 - El sistema consume el endpoint 
   `GET /api/v1/repositorio/estudiantes/{id}`.
 - El backend valida que el usuario tenga permiso para 
@@ -29,10 +30,8 @@
 - [ ] Un estudiante solo puede consultar su propio historial.
 - [ ] El administrador puede consultar el historial de 
       cualquier estudiante.
-- [ ] Si el estudiante no tiene certificados, se retorna 
-      una lista vacía.
-- [ ] El historial incluye certificados en cualquier estado: 
-      GENERADO, DISPONIBLE o ANULADO.
+- [ ] Si el estudiante no tiene certificados el sistema retorna HTTP 200 con campo data como array vacío [].
+- [ ] El campo estado en cada item del historial contiene únicamente uno de estos valores: GENERADO, DISPONIBLE o ANULADO sin filtrar por estado.
 
 ### 2. 📆 Estructura de la información
 

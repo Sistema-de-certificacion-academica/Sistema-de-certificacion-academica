@@ -9,12 +9,12 @@
 **Para** poder acceder a las funcionalidades del sistema según mi rol de forma segura y autenticada
 
 ## 🔁 Flujo Esperado
-- El usuario ingresa su correo y contraseña en la interfaz de login.
+- El cliente envía una petición POST al endpoint /api/v1/auth/login con correo y contraseña.
 - El sistema consume el endpoint POST /api/v1/auth/login con las credenciales.
 - El backend valida que el usuario exista y no esté bloqueado o inactivo.
 - Si las credenciales son correctas, el sistema genera un token JWT con duración de 24 horas.
 - El token se retorna al cliente junto con el rol y datos básicos del usuario.
-- El cliente almacena el token para usarlo en las siguientes peticiones como Authorization: Bearer {token}. 
+- El token retornado debe incluirse en las siguientes peticiones en el header Authorization: Bearer {token}
 
 ## ✅ Criterios de Aceptación
 

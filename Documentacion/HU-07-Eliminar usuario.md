@@ -10,8 +10,7 @@
 
 ## 🔁 Flujo Esperado
 
-- El administrador selecciona el usuario a eliminar desde 
-  la interfaz.
+- El cliente envía una petición DELETE al endpoint ``/api/v1/usuarios/{id}`` con el id del usuario como parámetro de ruta.
 - El sistema consume el endpoint `DELETE /api/v1/usuarios/{id}`.
 - El backend valida que el usuario con ese id exista en 
   el sistema.
@@ -25,13 +24,10 @@
 
 ### 1. 🔍 Estructura y lógica del servicio
 
-- [ ] Se expone un endpoint `DELETE /api/v1/usuarios/{id}` 
-      accesible solo para rol ADMINISTRADOR.
-- [ ] Se valida que el usuario con el id proporcionado exista 
-      en el sistema.
-- [ ] No se puede eliminar un usuario que tenga solicitudes 
-      de certificado en estado PENDIENTE.
-- [ ] Un administrador no puede eliminarse a sí mismo.
+- [ ] Se expone un endpoint `DELETE /api/v1/usuarios/{id}` accesible solo para rol ADMINISTRADOR.
+- [ ] Se valida que el usuario con el id proporcionado exista en el sistema.
+- [ ] No se puede eliminar un usuario que tenga solicitudes de certificado en estado PENDIENTE.
+- [ ] Si el id del usuario a eliminar coincide con el id del administrador autenticado, el sistema retorna  HTTP 400 con mensaje descriptivo.
 
 ### 2. 📆 Estructura de la información
 

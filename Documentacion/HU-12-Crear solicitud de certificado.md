@@ -10,11 +10,11 @@
 
 ## 🔁 Flujo Esperado
 
-- El estudiante selecciona el tipo de certificado que necesita 
-  desde la interfaz.
-- El estudiante ingresa el número de referencia de pago.
-- El sistema consume el endpoint `POST /api/v1/solicitudes` con 
-  los datos de la solicitud.
+- El cliente envía una petición POST al endpoint 
+  ``/api/v1/solicitudes`` con el tipo de certificado 
+  y número de referencia de pago en el cuerpo 
+  de la solicitud.
+- El sistema consume el endpoint `POST /api/v1/solicitudes` con los datos de la solicitud.
 - El backend valida que el estudiante no tenga una solicitud 
   pendiente del mismo tipo.
 - El backend valida que el tipo de certificado sea válido.
@@ -30,10 +30,8 @@
       solo para rol ESTUDIANTE.
 - [ ] Se valida que el estudiante no tenga una solicitud del 
       mismo tipo en estado PENDIENTE.
-- [ ] El tipo de certificado debe ser uno de los permitidos 
-      por el sistema.
-- [ ] El campo comprobante_pago es obligatorio y no puede 
-      estar vacío.
+- [ ] Si el tipo de certificado no existe en el sistema el endpoint retorna HTTP 400 con mensaje descriptivo indicando los tipos válidos aceptados.
+- [ ] El campo comprobante_pago es obligatorio y no puede  estar vacío.
 - [ ] La solicitud se crea automáticamente en estado PENDIENTE.
 
 ### 2. 📆 Estructura de la información

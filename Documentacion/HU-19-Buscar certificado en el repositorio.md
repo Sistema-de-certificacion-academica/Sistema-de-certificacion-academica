@@ -10,8 +10,9 @@
 
 ## 🔁 Flujo Esperado
 
-- El usuario ingresa el UUID del certificado que desea 
-  buscar desde la interfaz.
+- El cliente envía una petición GET al endpoint 
+  ``/api/v1/repositorio/certificados/{uuid}`` con el 
+  UUID como parámetro de ruta.
 - El sistema consume el endpoint 
   `GET /api/v1/repositorio/certificados/{uuid}`.
 - El backend busca el certificado en el repositorio   usando el UUID proporcionado.
@@ -25,9 +26,10 @@
       `GET /api/v1/repositorio/certificados/{uuid}` accesible 
       para rol ESTUDIANTE y ADMINISTRADOR.
 - [ ] Se valida que el UUID proporcionado exista en el repositorio.
-- [ ] Un estudiante solo puede buscar sus propios certificados.
+- [ ] Si el uuid del certificado no pertenece al estudiante autenticado el sistema retorna HTTP 403 con mensaje descriptivo sin retornar ningún dato del certificado.
 - [ ] El administrador puede buscar cualquier certificado.
-- [ ] El estado retornado puede ser DISPONIBLE o ANULADO.
+- [ ] El campo estado en la respuesta contiene únicamente uno de estos valores: DISPONIBLE o ANULADO. 
+      Cualquier otro valor es un error del sistema.
 
 ### 2. 📆 Estructura de la información
 

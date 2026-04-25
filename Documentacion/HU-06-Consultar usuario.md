@@ -10,8 +10,9 @@
 
 ## 🔁 Flujo Esperado
 
-- El administrador selecciona o ingresa el id del usuario 
-  a consultar.
+- El cliente envía una petición GET al endpoint 
+  ``/api/v1/usuarios/{id}`` con el id del usuario 
+  como parámetro de ruta.
 - El sistema consume el endpoint `GET /api/v1/usuarios/{id}` 
   con el id del usuario.
 - El backend valida que el usuario con ese id exista en 

@@ -12,8 +12,9 @@ y estado del documento sin necesidad de descargarlo completo.
 
 ## 🔁 Flujo Esperado
 
-- El usuario ingresa el UUID del certificado en la 
-  interfaz pública.
+- El cliente envía una petición GET al endpoint 
+  ``/api/v1/repositorio/metadatos/{uuid}`` con el 
+  UUID como parámetro de ruta.
 - El sistema consume el endpoint 
   `GET /api/v1/repositorio/metadatos/{uuid}`.
 - El backend busca el certificado en el repositorio 
@@ -30,8 +31,10 @@ y estado del documento sin necesidad de descargarlo completo.
       público, no requiere autenticación.
 - [ ] Se valida que el UUID proporcionado exista en 
       el repositorio.
-- [ ] La respuesta incluye únicamente fecha de emisión, 
-      vigencia y estado del certificado.
+- [ ] La respuesta incluye únicamente los campos uuid, 
+      tipo_certificado, fecha_emision y estado. Ningún 
+      dato personal del estudiante como nombre, correo 
+      o id es retornado en este endpoint.
 - [ ] No se expone información privada del estudiante 
       como correo o datos personales sensibles.
 - [ ] Un certificado anulado retorna estado ANULADO 

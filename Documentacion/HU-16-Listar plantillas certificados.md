@@ -10,8 +10,9 @@
 
 ## 🔁 Flujo Esperado
 
-- El administrador accede a la sección de plantillas 
-  desde la interfaz.
+- El cliente envía una petición GET al endpoint 
+  ``/api/v1/plantillas`` para obtener todas las 
+  plantillas registradas.
 - El sistema consume el endpoint `GET /api/v1/plantillas`.
 - El backend retorna todas las plantillas registradas 
   en el sistema.
@@ -26,7 +27,7 @@
       solo para rol ADMINISTRADOR.
 - [ ] El endpoint retorna todas las plantillas registradas 
       en el sistema.
-- [ ] Si no hay plantillas registradas, retorna una lista vacía.
+- [ ] Si no hay plantillas registradas el sistema retorna  HTTP 200 con campo data como array vacío [].
 
 ### 2. 📆 Estructura de la información
 

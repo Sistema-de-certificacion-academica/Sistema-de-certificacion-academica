@@ -10,8 +10,9 @@
 
 ## 🔁 Flujo Esperado
 
-- El verificador ingresa el UUID del certificado en la 
-  interfaz pública de verificación.
+- El cliente envía una petición GET al endpoint 
+  ``/api/v1/verificaciones/{codigo}`` con el UUID 
+  como parámetro de ruta.
 - El sistema consume el endpoint 
   `GET /api/v1/verificaciones/{codigo}` con el UUID.
 - El backend busca el certificado en el repositorio 
@@ -29,8 +30,7 @@
 - [ ] El certificado se marca como válido solo si el UUID 
       existe en el repositorio y su estado es DISPONIBLE.
 - [ ] Un certificado anulado retorna válido en false.
-- [ ] El sistema no expone información privada del estudiante 
-      como correo, contraseña o datos personales sensibles.
+- [ ] La respuesta incluye únicamente los campos valido,  uuid, estudiante con solo nombre, tipo_certificado, fecha_emision y estado. Ningún campo como correo, password o id es retornado en este endpoint.
 - [ ] Cada verificación dispara automáticamente el registro definido en HU-25
 
 ### 2. 📆 Estructura de la información

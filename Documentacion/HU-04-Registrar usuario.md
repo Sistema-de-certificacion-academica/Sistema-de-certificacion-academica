@@ -12,9 +12,9 @@ el perfil que les corresponde dentro de la universidad.
 
 ## 🔁 Flujo Esperado
 
-- El administrador ingresa los datos del nuevo usuario desde la interfaz.
-- El sistema consume el endpoint `POST /api/v1/usuarios` con la 
-  información del usuario.
+- El cliente envía una petición POST al endpoint 
+   `/api/v1/usuarios` con los datos del nuevo usuario en el cuerpo de la solicitud.
+- El sistema consume el endpoint `POST /api/v1/usuarios` con la información del usuario.
 - El backend valida que el correo no esté registrado previamente.
 - El backend valida que el rol asignado sea uno de los permitidos.
 - Si los datos son válidos, el usuario queda registrado y activo en 
