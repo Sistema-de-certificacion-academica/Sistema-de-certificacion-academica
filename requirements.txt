@@ -1,0 +1,6 @@
+Collecting fastapi==0.111.0
+Collecting uvicorn[standard]==0.30.0
+Collecting sqlalchemy==2.0.30
+Collecting pydantic==2.7.1
+Collecting python-dotenv==1.0.1
+Collecting alembic==1.13.1
