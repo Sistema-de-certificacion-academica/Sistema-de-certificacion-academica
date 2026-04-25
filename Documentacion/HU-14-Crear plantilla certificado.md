@@ -1,4 +1,4 @@
-# [HU-12] Crear plantilla de certificado
+# [HU-14] Crear plantilla de certificado
 
 ## 📖 Historia de Usuario
 

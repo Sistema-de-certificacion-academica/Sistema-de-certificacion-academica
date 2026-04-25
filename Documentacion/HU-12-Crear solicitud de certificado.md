@@ -1,4 +1,4 @@
-# [HU-08] Crear solicitud de certificado
+# [HU-12] Crear solicitud de certificado
 
 ## 📖 Historia de Usuario
 
