@@ -1,18 +1,4 @@
-import sys
-import os
-from datetime import datetime
 
-# Agregar la raíz del proyecto al path para importar el paquete 'app'
-sys.path.insert(0, os.path.dirname(__file__))
-
-from fastapi import FastAPI, HTTPException, status
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError
-from app.core.database import engine, Base
-from app.usuarios.api.router import router as usuarios_router
-
-# Crear las tablas en la base de datos automáticamente al iniciar la app
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="UniCert API",
@@ -20,88 +6,16 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# ----------------------------------------------------------------
-# Manejadores de Excepciones para Formato Envelopado de Errores
-# ----------------------------------------------------------------
+# Configuración CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-
-@app.exception_handler(HTTPException)
-def http_exception_handler(request, exc: HTTPException):
-    """
-    Captura excepciones HTTP y las formatea según el contrato de la HU.
-    """
-    error_codes = {
-        400: "BAD_REQUEST",
-        401: "UNAUTHORIZED",
-        403: "FORBIDDEN",
-        404: "NOT_FOUND",
-        409: "CONFLICT",
-    }
-    error_code = error_codes.get(exc.status_code, "INTERNAL_SERVER_ERROR")
-
-    # Determinar el mensaje principal
-    message = "No fue posible registrar el usuario"
-    if exc.status_code == 401:
-        message = "No autorizado"
-    elif exc.status_code == 403:
-        message = "Acceso denegado"
-
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "success": False,
-            "statusCode": exc.status_code,
-            "message": message,
-            "error": {
-                "error_code": error_code,
-                "details": exc.detail,
-                "timestamp": datetime.utcnow().isoformat() + "Z",
-            },
-        },
-    )
-
-
-@app.exception_handler(RequestValidationError)
-def validation_exception_handler(request, exc: RequestValidationError):
-    """
-    Captura errores de validación de esquemas (Pydantic) y los retorna como 400 Bad Request.
-    """
-
-    errors = exc.errors()
-    details_list = []
-
-    for err in errors:
-        loc = err.get("loc", [])
-        # Limpiar 'body' del path del error
-        field_path = " -> ".join(str(l) for l in loc if l != "body")
-        msg = err.get("msg", "")
-
-        # Formatear mensaje para campos requeridos
-        if "field required" in msg or "is missing" in msg:
-            details_list.append(f"El campo '{field_path}' es obligatorio")
-        else:
-            details_list.append(f"El campo '{field_path}': {msg}")
-
-    details_str = (
-        "; ".join(details_list) if details_list else "Datos de entrada inválidos"
-    )
-
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        content={
-            "success": False,
-            "statusCode": 400,
-            "message": "No fue posible registrar el usuario",
-            "error": {
-                "error_code": "BAD_REQUEST",
-                "details": details_str,
-                "timestamp": datetime.utcnow().isoformat() + "Z",
-            },
-        },
-    )
-    # ----------------------------------------------------------------
-    # Registro de Routers
-    # ----------------------------------------------------------------
+app.include_router(auth_router)
 
 
 app.include_router(usuarios_router)

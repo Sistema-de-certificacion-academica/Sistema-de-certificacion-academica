@@ -51,3 +51,4 @@ def require_estudiante(current_user: dict = Depends(get_current_user)):
             detail="No tiene permisos para acceder a este recurso",
         )
     return current_user
+
