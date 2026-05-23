@@ -15,19 +15,16 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
+# Encripta contraseña
 def hash_password(password: str) -> str:
-    # Encripta contraseña
     return pwd_context.hash(password)
 
-
+# Compara contraseña plana con la encriptada
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    # Compara contraseña plana con la encriptada
     return pwd_context.verify(plain_password, hashed_password)
 
-
+# Genera token
 def create_access_token(data: dict) -> str:
-    # Genera token
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(
         minutes=ACCESS_TOKEN_EXPIRE_MINUTES
@@ -35,9 +32,8 @@ def create_access_token(data: dict) -> str:
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-
+# Lee y valida token. Retorna None si es inválido
 def decode_access_token(token: str) -> Optional[dict]:
-    # Lee y valida token. Retorna None si es inválido
     try:
         payload = jwt.decode(
             token,
