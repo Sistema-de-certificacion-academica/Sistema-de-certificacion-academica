@@ -1,93 +1,59 @@
-from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
-from core.security import verify_password, create_access_token
-from autenticacion.repository.auth_repo import AuthRepository
+# app/autenticacion/services/auth_service.py
+# ─────────────────────────────────────────────────
+# CAPA SERVICE — lógica de negocio de autenticación
+# Coordina domain y repository
+# Sin imports de FastAPI
+# ─────────────────────────────────────────────────
 
-INTENTOS_MAX = 5
+from app.autenticacion.repository.auth_repository import auth_repository
+from app.autenticacion.domain.auth import LoginRequest, LoginResponse
+from app.core.security import verify_password, create_access_token
+
 
 class AuthService:
 
     def __init__(self):
-        self.repo = AuthRepository()
+        self.repo = auth_repository
 
-    # Autentica el usuario y retorna token
-    def login(self, correo: str, password: str, db: Session) -> dict:
+    def login(self, data: LoginRequest) -> dict:
+        """
+        Autentica el usuario y retorna token JWT.
+        Aplica todas las reglas de negocio de HU-05.
+        """
 
-        usuario = self.repo.get_usuario_por_correo(correo, db)
+        # 1. Busca el usuario en el repository
+        usuario = self.repo.get_by_correo(data.correo)
 
-        # El correo debe existir
+        # 2. Regla: el correo debe existir
         if not usuario:
-            raise HTTPException(
-               us_code=status.HTTP_401_UNAUTHORIZED,
-                 statdetail={
-                    "success": False,
-                    "statusCode": 401,
-                    "message": "No se pudo iniciar sesión",
-                    "error": {
-                        "error_code": 401,
-                        "error_message": "Correo no registrado en el sistema",
-                        "intentos_restantes": None,
-                        "sugerencia": "Verifique que el correo sea correcto"
-                    }
-                }
-            )
+            raise ValueError("Correo no registrado en el sistema")
 
-        # El usuario no debe estar bloqueado
-        if usuario.bloqueado:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail={
-                    "success": False,
-                    "statusCode": 403,
-                    "message": "Cuenta bloqueada temporalmente",
-                    "error": {
-                        "error_code": 403,
-                        "error_message": "Su cuenta fue bloqueada por múltiples intentos fallidos",
-                        "sugerencia": "Contacte al administrador para desbloquear su cuenta"
-                    }
-                }
-            )
+        # 3. Regla del domain: el usuario no debe estar bloqueado
+        if usuario.esta_bloqueado():
+            raise ValueError("Cuenta bloqueada temporalmente")
 
-        # La contraseña debe ser correcta
-        if not verify_password(password, usuario.password):
+        # 4. Regla: la contraseña debe ser correcta
+        if not verify_password(data.password, usuario.password_hash):
+
+            # Incrementa intentos fallidos
             nuevos_intentos = usuario.intentos_fallidos + 1
+            self.repo.actualizar_intentos(data.correo, nuevos_intentos)
 
-            # Bloquea después de 5 intentos
-            if nuevos_intentos >= INTENTOS_MAX:
-                self.repo.bloquear_usuario(correo, db)
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail={
-                        "success": False,
-                        "statusCode": 403,
-                        "message": "Cuenta bloqueada temporalmente",
-                        "error": {
-                            "error_code": 403,
-                            "error_message": "Ha superado el límite de intentos fallidos",
-                            "sugerencia": "Contacte al administrador para desbloquear su cuenta"
-                        }
-                    }
-                )
+            # Regla del domain: bloquear si superó intentos
+            if usuario.supero_intentos():
+                self.repo.bloquear_usuario(data.correo)
+                raise ValueError("Cuenta bloqueada por múltiples intentos fallidos")
 
-            self.repo.actualizar_intentos_fallidos(correo, nuevos_intentos, db)
-
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail={
-                    "success": False,
-                    "statusCode": 401,
-                    "message": "No se pudo iniciar sesión",
-                    "error": {
-                        "error_code": 401,
-                        "error_message": "Contraseña incorrecta",
-                        "intentos_restantes": INTENTOS_MAX - nuevos_intentos,
-                        "sugerencia": "Verifique que la tecla Mayúsculas no esté activada."
-                    }
-                }
+            # Regla del domain: cuántos intentos le quedan
+            raise ValueError(
+                f"Contraseña incorrecta. "
+                f"Intentos restantes: {usuario.intentos_restantes()}"
             )
 
-        self.repo.resetear_intentos(correo, db)
+        # 5. Login exitoso: resetea intentos
+        self.repo.resetear_intentos(data.correo)
 
+        # 6. Genera token JWT con datos del usuario
         token = create_access_token({
             "id": usuario.id,
             "correo": usuario.correo,
@@ -95,6 +61,7 @@ class AuthService:
             "nombre": usuario.nombre
         })
 
+        # 7. Retorna respuesta según contrato de la HU
         return {
             "success": True,
             "statusCode": 200,
@@ -111,8 +78,11 @@ class AuthService:
             }
         }
 
-    # Retorna usuario autenticado 
     def get_me(self, current_user: dict) -> dict:
+        """
+        Retorna datos del usuario autenticado
+        desde el payload del token JWT.
+        """
         return {
             "success": True,
             "statusCode": 200,
@@ -125,8 +95,12 @@ class AuthService:
             }
         }
 
-
     def validar_token(self, current_user: dict) -> dict:
+        """
+        Valida que el token JWT sea vigente.
+        Si llega aquí el token ya fue validado
+        por dependencies.py
+        """
         return {
             "success": True,
             "statusCode": 200,
@@ -138,3 +112,7 @@ class AuthService:
                 "rol": current_user.get("rol")
             }
         }
+
+
+# Instancia única compartida
+auth_service = AuthService()
