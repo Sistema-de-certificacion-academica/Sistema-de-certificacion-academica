@@ -1,8 +1,11 @@
 import re
-from pydantic import BaseModel, Field, field_validator
 
-# Expresión regular para validar formato de correo electrónico
-EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+EMAIL_REGEX = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+DOMINIO_CORREO_INSTITUCIONAL = "@correo.uts.edu.co"
+ROLES_PERMITIDOS = frozenset({"ESTUDIANTE", "ADMINISTRADOR", "EMPRESA_EXTERNA"})
+
 
 class UserCreate(BaseModel):
     nombre: str = Field(..., min_length=1)
@@ -10,38 +13,41 @@ class UserCreate(BaseModel):
     password: str = Field(..., min_length=1)
     rol: str
 
-    @field_validator('correo')
-
+    @field_validator("correo")
     @classmethod
-
     def validate_correo(cls, v: str) -> str:
         if not re.match(EMAIL_REGEX, v):
-            raise ValueError('El correo electrónico no es válido')
+            raise ValueError("El correo electrónico no es válido")
+        if not v.endswith(DOMINIO_CORREO_INSTITUCIONAL):
+            raise ValueError(
+                f"El correo debe ser institucional ({DOMINIO_CORREO_INSTITUCIONAL})"
+            )
         return v
 
-    @field_validator('rol')
-
+    @field_validator("rol")
     @classmethod
-    def validate_rol(cls, v: str) -> str: 
-        
-        allowed_roles = {"ESTUDIANTE", "ADMINISTRADOR","EMPRESA_EXTERNA"}
-
-        if v not in allowed_roles:
-            raise ValueError('El rol no es válido')
+    def validate_rol(cls, v: str) -> str:
+        if v not in ROLES_PERMITIDOS:
+            raise ValueError("El rol no es válido")
         return v
+
 
 class UserResponseData(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     nombre: str
     correo: str
     rol: str
     activo: bool
 
-    class Config:
-        from_attributes = True
-
 class UserResponse(BaseModel):
     success: bool = True
     statusCode: int = 201
     message: str = "Usuario registrado correctamente"
     data: UserResponseData
+
+class UserDeleteResponse(BaseModel):
+    success: bool = True
+    statusCode: int = 200
+    message: str = "Usuario eliminado correctamente"

@@ -1,27 +1,46 @@
 from typing import Optional
 
-from sqlalchemy.orm import Session
 from app.usuarios.domain.models import User
 from app.usuarios.domain.schemas import UserCreate
 
 
 class UserRepository:
+    _users: list[User] = []
+    _next_id: int = 1
 
-    def get_by_id(self, db: Session, user_id: int) -> Optional[User]:
-        return db.query(User).filter(User.id == user_id).first()
+    def get_by_id(self, user_id: int) -> Optional[User]:
+        for user in self._users:
+            if user.id == user_id:
+                return user
+        return None
 
-    def get_by_correo(self, db: Session, correo: str) -> Optional[User]:
-        return db.query(User).filter(User.correo == correo).first()
+    def delete_by_id(self, user_id: int) -> bool:
+        for i, user in enumerate(self._users):
+            if user.id == user_id:
+                self._users.pop(i)
+                return True
+        return False
 
-    def create(self, db: Session, user_data: UserCreate, hashed_password: str) -> User:
-        db_user = User(
+    def get_by_correo(self, correo: str) -> Optional[User]:
+        for user in self._users:
+            if user.correo == correo:
+                return user
+        return None
+
+    def create(self, user_data: UserCreate, hashed_password: str) -> User:
+        user = User(
+            id=self._next_id,
             nombre=user_data.nombre,
             correo=user_data.correo,
             password=hashed_password,
             rol=user_data.rol,
             activo=True,
         )
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-        return db_user
+        self._users.append(user)
+        type(self)._next_id += 1
+        return user
+
+    @classmethod
+    def clear(cls):
+        cls._users.clear()
+        cls._next_id = 1

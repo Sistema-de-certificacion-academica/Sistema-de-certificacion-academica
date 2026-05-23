@@ -1,24 +1,34 @@
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
 from app.usuarios.repository.usuario_repo import UserRepository
-from app.usuarios.domain.schemas import UserCreate
+from app.usuarios.domain.schemas import ROLES_PERMITIDOS, UserCreate
 from app.core.security import hash_password
 
 class UserService:
     def __init__(self):
         self.repository = UserRepository()
 
-    def registrar_usuario(self, db: Session, user_data: UserCreate):
-        # 1. Validar que el correo no esté registrado previamente
-        existing_user = self.repository.get_by_correo(db, user_data.correo)
+    def registrar_usuario(self, user_data: UserCreate):
+        if user_data.rol not in ROLES_PERMITIDOS:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El rol no es válido",
+            )
+
+        existing_user = self.repository.get_by_correo(user_data.correo)
         if existing_user:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Ya existe un usuario registrado con ese correo",
             )
 
-        # 2. Encriptar contraseña del usuario
         hashed_pass = hash_password(user_data.password)
+        return self.repository.create(user_data, hashed_pass)
 
-        # 3. Guardar en base de datos
-        return self.repository.create(db, user_data, hashed_pass)
+    def eliminar_usuario(self, user_id: int) -> None:
+        user = self.repository.get_by_id(user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado",
+            )
+        self.repository.delete_by_id(user_id)
