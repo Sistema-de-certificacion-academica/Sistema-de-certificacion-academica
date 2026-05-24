@@ -4,8 +4,6 @@ from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
 from app.core.security import decode_access_token
 
-
-
 security = HTTPBearer()
 
 # Abre y cierra sesion por cada  peticion 

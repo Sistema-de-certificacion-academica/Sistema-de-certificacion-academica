@@ -1,5 +1,5 @@
 from app.autenticacion.repository.auth_repository import auth_repository
-from app.autenticacion.domain.auth import LoginRequest, LoginResponse
+from app.autenticacion.domain.auth import LoginRequest 
 from app.core.security import verify_password, create_access_token
 
 
@@ -14,7 +14,7 @@ class AuthService:
         if not usuario:
             raise ValueError("Correo no registrado en el sistema")
 
-        if usuario.esta_bloqueado():
+        if usuario.bloqueado:
             raise ValueError("Cuenta bloqueada temporalmente")
 
         if not verify_password(data.password, usuario.password):
@@ -22,13 +22,13 @@ class AuthService:
             nuevos_intentos = usuario.intentos_fallidos + 1
             self.repo.actualizar_intentos(data.correo, nuevos_intentos)
 
-            if usuario.supero_intentos():
+            if nuevos_intentos >= 5:
                 self.repo.bloquear_usuario(data.correo)
                 raise ValueError("Cuenta bloqueada por múltiples intentos fallidos")
 
             raise ValueError(
                 f"Contraseña incorrecta. "
-                f"Intentos restantes: {usuario.intentos_restantes()}"
+                f"Intentos restantes: {5 - nuevos_intentos}"
             )
 
         self.repo.resetear_intentos(data.correo)
