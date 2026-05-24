@@ -1,7 +1,6 @@
 from typing import Optional
 
-from app.usuarios.domain.models import User
-from app.usuarios.domain.schemas import UserCreate
+from app.usuarios.domain.schemas import User, UserCreate
 
 
 class UserRepository:

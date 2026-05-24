@@ -3,6 +3,8 @@ from app.core.dependencies import require_admin
 from app.usuarios.domain.schemas import UserCreate, UserDeleteResponse, UserResponse, UserResponseData
 from app.usuarios.services.usuario_service import UserService
 
+#AWDS
+
 router = APIRouter(prefix="/api/v1/usuarios", tags=["Usuarios"])
 user_service = UserService()
 
@@ -19,17 +21,4 @@ def create_user(
         statusCode=201,
         message="Usuario registrado correctamente",
         data=UserResponseData.model_validate(db_user),
-    )
-
-
-@router.delete("/{user_id}", response_model=UserDeleteResponse, status_code=status.HTTP_200_OK)
-def delete_user(
-    user_id: int,
-    current_user: dict = Depends(require_admin),
-):
-    user_service.eliminar_usuario(user_id)
-    return UserDeleteResponse(
-        success=True,
-        statusCode=200,
-        message="Usuario eliminado correctamente",
     )
