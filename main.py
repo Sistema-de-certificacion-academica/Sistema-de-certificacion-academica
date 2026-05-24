@@ -1,9 +1,13 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.autenticacion.api.auth_router import router as auth_router
 
+from app.usuarios.api.router import router as usuarios_router
 
 app = FastAPI(
     title="UniCert API",
     description="Sistema de Certificación Académica Digital",
-    version="1.0.0",
+    version="1.0.0"
 )
 
 # Configuración CORS
@@ -17,9 +21,7 @@ app.add_middleware(
 
 app.include_router(auth_router)
 
-
 app.include_router(usuarios_router)
-
 
 @app.get("/")
 def root():
