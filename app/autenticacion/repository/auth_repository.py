@@ -6,6 +6,7 @@ class AuthRepository:
 
     def __init__(self):
         self._user_repo = UserRepository()
+        self._tokens_invalidados: set = set()
 
     def get_by_correo(self, correo: str):
         return self._user_repo.get_by_correo(correo)
@@ -27,5 +28,14 @@ class AuthRepository:
         usuario = self.get_by_correo(correo)
         if usuario:
             usuario.intentos_fallidos = 0
+
+    def invalidar_token(self, token: str) -> bool:
+        if token in self._tokens_invalidados:
+            return False  
+        self._tokens_invalidados.add(token)
+        return True
+
+    def token_es_invalido(self, token: str) -> bool:
+        return token in self._tokens_invalidados
 
 auth_repository = AuthRepository()

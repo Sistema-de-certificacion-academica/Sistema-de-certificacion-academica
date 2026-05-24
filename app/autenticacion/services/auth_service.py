@@ -81,5 +81,18 @@ class AuthService:
                 "rol": current_user.get("rol")
             }
         }
+    
+    def logout(self, token: str) -> dict:
+        if self.repo.token_es_invalido(token):
+            raise ValueError("El token ya fue revocado")
+
+        self.repo.invalidar_token(token)
+
+        return {
+            "success": True,
+            "statusCode": 200,
+            "message": "Sesión cerrada correctamente",
+            "data": None
+        }
 
 auth_service = AuthService()

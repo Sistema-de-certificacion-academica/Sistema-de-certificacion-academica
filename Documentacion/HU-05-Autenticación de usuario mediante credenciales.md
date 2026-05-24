@@ -157,7 +157,6 @@
 
 - [ ] Endpoints documentado en Swagger / OpenAPI.
 - [ ] Se describe:
-
   - Propósito del endpoint
   - Campos de entrada y salida
   - Ejemplo de respuesta exitosa

@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.autenticacion.domain.auth import LoginRequest
 from app.autenticacion.services.auth_service import auth_service
 from app.core.dependencies import get_current_user
+from fastapi.security import HTTPAuthorizationCredentials
+from app.core.dependencies import security
 
 router = APIRouter(
     prefix="/api/v1/auth",
@@ -65,4 +67,24 @@ def validar_token(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e)
+        )
+    
+@router.post("/logout", status_code=status.HTTP_200_OK)
+def logout(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
+    try:
+        return auth_service.logout(token)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={
+                "success": False,
+                "statusCode": 401,
+                "message": "No se pudo cerrar la sesión",
+                "error": {
+                    "error_code": "UNAUTHORIZED",
+                    "details": str(e),
+                    "timestamp": "2026-03-18T10:00:00Z"
+                }
+            }
         )
