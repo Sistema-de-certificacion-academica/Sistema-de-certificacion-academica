@@ -45,3 +45,9 @@ class Login:
 
     def intentos_restantes(self, max_intentos=5) -> int:
         return max_intentos - self.intentos_fallidos
+    
+class LogoutResponse(BaseModel):
+    success: bool
+    statusCode: int
+    message: str
+    data: None = None
