@@ -51,3 +51,23 @@ class LogoutResponse(BaseModel):
     statusCode: int
     message: str
     data: None = None
+
+ROLES_VALIDOS = frozenset({"ESTUDIANTE", "ADMINISTRADOR", "EMPRESA_EXTERNA"})
+
+PERMISOS_POR_ROL = {
+    "ADMINISTRADOR": [
+        "gestionar_usuarios",
+        "gestionar_plantillas", 
+        "gestionar_solicitudes",
+        "gestionar_certificados"
+    ],
+    "ESTUDIANTE": [
+        "crear_solicitud",
+        "consultar_solicitud",
+        "descargar_certificado",
+        "consultar_historial"
+    ],
+    "EMPRESA_EXTERNA": [
+        "verificar_certificado"
+    ]
+}
