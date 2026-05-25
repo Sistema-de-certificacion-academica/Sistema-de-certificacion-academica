@@ -1,7 +1,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.dependencies import require_admin
-from app.usuarios.domain.schemas import UserCreate
+from app.usuarios.domain.usuarios import UserCreate
 from app.usuarios.services.usuario_service import UserService
 
 router = APIRouter(prefix="/api/v1/usuarios", tags=["Usuarios"])

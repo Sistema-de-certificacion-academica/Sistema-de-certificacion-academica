@@ -1,6 +1,6 @@
 
 from app.usuarios.repository.usuario_repo import UserRepository
-from app.usuarios.domain.schemas import ROLES_PERMITIDOS, UserCreate
+from app.usuarios.domain.usuarios import ROLES_PERMITIDOS, UserCreate
 from app.core.security import hash_password
 
 class UserService:
@@ -40,3 +40,4 @@ class UserService:
         hashed_pass = hash_password(user_data.password)
         user = self.repository.create(user_data, hashed_pass)
         return self._build_response(user)
+

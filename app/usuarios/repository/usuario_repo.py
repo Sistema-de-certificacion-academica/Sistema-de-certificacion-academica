@@ -1,6 +1,7 @@
 
 from typing import Optional
-from app.usuarios.domain.schemas import User, UserCreate
+from app.usuarios.domain.usuarios import User
+from app.usuarios.domain.usuarios import UserCreate
 from app.core.security import hash_password
 
 
