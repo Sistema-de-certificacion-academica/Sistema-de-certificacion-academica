@@ -1,11 +1,31 @@
-from typing import Optional
 
+from typing import Optional
 from app.usuarios.domain.schemas import User, UserCreate
+from app.core.security import hash_password
 
 
 class UserRepository:
     _users: list[User] = []
     _next_id: int = 1
+    _seeded: bool = False  
+
+    def __init__(self):
+        if not type(self)._seeded:
+            self._seed()
+            type(self)._seeded = True
+    
+    # Usuario administrador por defecto
+    def _seed(self):
+        admin = User(
+            id=self._next_id,
+            nombre="Admin UniCert",
+            correo="admin@unicert.com",
+            password=hash_password("admin123"),
+            rol="ADMINISTRADOR",
+            activo=True
+        )
+        type(self)._users.append(admin)
+        type(self)._next_id += 1
 
     def get_by_id(self, user_id: int) -> Optional[User]:
         for user in self._users:

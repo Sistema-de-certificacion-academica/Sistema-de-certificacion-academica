@@ -8,8 +8,11 @@ sys.path.insert(0, os.path.dirname(__file__))
 from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import engine, Base
 from app.usuarios.api.router import router as usuarios_router
+from app.autenticacion.api.auth_router import router as auth_router
+from fastapi.middleware.cors import CORSMiddleware
 
 
 # Crear las tablas en la base de datos automáticamente al iniciar la app
@@ -111,9 +114,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app.include_router(auth_router)
-
 
 
 app.include_router(auth_router)
