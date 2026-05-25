@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -13,10 +13,17 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(
     os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 1440)
 )
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto",
+    bcrypt__rounds=12
+)
 
 # Encripta contraseña
 def hash_password(password: str) -> str:
+    # Encripta contraseña - bcrypt limita a 72 bytes
+    # Truncar la contraseña para evitar errores con bcrypt
+    password = password[:72]
     return pwd_context.hash(password)
 
 # Compara contraseña plana con la encriptada
@@ -26,7 +33,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 # Genera token
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(
+    expire = datetime.now(timezone.utc) + timedelta(
         minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
     to_encode.update({"exp": expire})

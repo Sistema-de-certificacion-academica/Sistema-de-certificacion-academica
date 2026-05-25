@@ -1,3 +1,4 @@
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.dependencies import require_admin
 from app.usuarios.domain.usuarios import UserCreate
@@ -7,7 +8,7 @@ router = APIRouter(prefix="/api/v1/usuarios", tags=["Usuarios"])
 user_service = UserService()
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-def create_user(
+def registrar_usuario(
     user_data: UserCreate,
     current_user: dict = Depends(require_admin),
 ):
@@ -18,7 +19,7 @@ def create_user(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(e)
         )
-    
+
 @router.post("/registro", status_code=status.HTTP_201_CREATED)
 def registro_estudiante(user_data: UserCreate):
     try:
@@ -31,18 +32,5 @@ def registro_estudiante(user_data: UserCreate):
             )
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=str(e)
-        )
-
-@router.delete("/{user_id}", status_code=status.HTTP_200_OK)
-def delete_user(
-    user_id: int,
-    current_user: dict = Depends(require_admin),
-):
-    try:
-        return user_service.eliminar_usuario(user_id)
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
         )
