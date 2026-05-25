@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.dependencies import require_admin
 from app.usuarios.domain.usuarios import UserCreate
