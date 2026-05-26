@@ -1,8 +1,10 @@
+from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 import re
 
 EMAIL_REGEX = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 ROLES_PERMITIDOS = frozenset({"ESTUDIANTE", "ADMINISTRADOR", "EMPRESA_EXTERNA"})
+ROLES_ACTUALIZABLES = frozenset({"ESTUDIANTE", "ADMINISTRADOR"})
 
 class User:
     def __init__(self, id: int, nombre: str, correo: str, password: str, rol: str, 
@@ -54,4 +56,18 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UserUpdate(BaseModel):
+    model_config = ConfigDict(extra='ignore')
+
+    nombre: Optional[str] = Field(None, min_length=1)
+    correo: Optional[str] = Field(None, min_length=1)
+    rol: Optional[str] = None
+
+    @field_validator("correo")
+    @classmethod
+    def validate_correo(cls, v: str) -> str:
+        if v is not None and not re.match(EMAIL_REGEX, v):
+            raise ValueError("El correo electrónico no es válido")
+        return v
 

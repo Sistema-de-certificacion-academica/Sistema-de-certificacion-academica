@@ -60,6 +60,16 @@ class UserRepository:
         type(self)._next_id += 1
         return user
 
+    def update(self, user_id: int, nombre: str = None, correo: str = None, rol: str = None) -> User:
+        user = self.get_by_id(user_id)
+        if nombre is not None:
+            user.nombre = nombre
+        if correo is not None:
+            user.correo = correo
+        if rol is not None:
+            user.rol = rol
+        return user
+
     @classmethod
     def clear(cls):
         cls._users.clear()
