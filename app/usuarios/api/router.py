@@ -23,6 +23,25 @@ def registro_estudiante(user_data: UserCreate):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
+@router.get("/{usuario_id}", status_code=status.HTTP_200_OK)
+def consultar_usuario(usuario_id: int, current_user: dict = Depends(require_admin)):
+    try:
+        return usuario_services.obtener_usuario_por_id(usuario_id)
+    except ServiceError as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail={
+                "success": False,
+                "statusCode": e.status_code,
+                "message": "No fue posible consultar el usuario",
+                "error": {
+                    "error_code": "NOT_FOUND",
+                    "details": e.message,
+                    "timestamp": datetime.utcnow().isoformat() + "Z"
+                }
+            }
+        )
+
 @router.put("/{usuario_id}", status_code=status.HTTP_200_OK)
 def actualizar_usuario(usuario_id: int, user_data: UserUpdate, current_user: dict = Depends(require_admin)):
     try:

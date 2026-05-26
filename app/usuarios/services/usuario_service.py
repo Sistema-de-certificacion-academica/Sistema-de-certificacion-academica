@@ -87,6 +87,25 @@ class UserService:
             "data": None
         }
 
+    def obtener_usuario_por_id(self, usuario_id: int) -> dict:
+        user = self.repository.get_by_id(usuario_id)
+        if user is None:
+            raise ServiceError(
+                "No existe un usuario con el id proporcionado", 404
+            )
+        return {
+            "success": True,
+            "statusCode": 200,
+            "message": "Usuario encontrado",
+            "data": {
+                "id": user.id,
+                "nombre": user.nombre,
+                "correo": user.correo,
+                "rol": user.rol,
+                "activo": user.activo
+            }
+        }
+
     def actualizar_perfil_usuario(self, usuario_id: int, user_data: UserUpdate) -> dict:
         user = self.repository.get_by_id(usuario_id)
         if user is None:
