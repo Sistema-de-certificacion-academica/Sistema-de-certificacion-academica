@@ -22,8 +22,6 @@ class SolicitudCreate(BaseModel):
     @field_validator("tipo_certificado")
     @classmethod
     def validar_tipo(cls, v):
-        # TODO: conectar con módulo de plantillas
-        # cuando esté disponible
         if v not in TIPOS_CERTIFICADO:
             raise ValueError(
                 f"Tipo de certificado no válido. "
@@ -39,9 +37,8 @@ class SolicitudCreate(BaseModel):
         return v.strip()
 
 class Solicitud:
-    def __init__(self, id: int, usuario_id: int, tipo_certificado: str, comprobante_pago: str,
-                 estado: str = "PENDIENTE",
-                 fecha_solicitud: str = None):
+    def __init__(self, id: int, usuario_id: int, tipo_certificado: str, comprobante_pago: str, 
+                 estado: str = "PENDIENTE", fecha_solicitud: str = None):
         self.id = id
         self.usuario_id = usuario_id
         self.tipo_certificado = tipo_certificado
