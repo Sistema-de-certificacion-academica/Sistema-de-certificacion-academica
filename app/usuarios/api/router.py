@@ -26,7 +26,7 @@ def registro_estudiante(user_data: UserCreate):
 @router.put("/{usuario_id}", status_code=status.HTTP_200_OK)
 def actualizar_usuario(usuario_id: int, user_data: UserUpdate, current_user: dict = Depends(require_admin)):
     try:
-        return user_service.actualizar_perfil_usuario(usuario_id, user_data)
+        return usuario_services.actualizar_perfil_usuario(usuario_id, user_data)
     except ServiceError as e:
         error_codes = {404: "NOT_FOUND", 409: "CONFLICT", 400: "BAD_REQUEST"}
         raise HTTPException(
