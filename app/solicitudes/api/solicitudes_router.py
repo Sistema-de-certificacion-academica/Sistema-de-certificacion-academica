@@ -5,6 +5,7 @@ from app.solicitudes.services.solicitudes_service import solicitud_service
 from app.core.dependencies import require_estudiante, require_estudiante_o_admin, require_admin
 from app.solicitudes.services.solicitudes_service import solicitud_service, ConflictError
 from app.solicitudes.domain.solicitudes import SolicitudCreate, ActualizarEstadoRequest
+from typing import Optional
 
 router = APIRouter(prefix="/api/v1/solicitudes", tags=["Solicitudes"])
 
@@ -52,5 +53,12 @@ def aprobar_rechazar_solicitud(solicitud_id: int, data: ActualizarEstadoRequest,
         return solicitud_service.aprobar_rechazar_solicitud(solicitud_id, data)
     except ConflictError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.get("", status_code=status.HTTP_200_OK)
+def listar_solicitudes(estado: Optional[str] = None, current_user: dict = Depends(require_admin)):
+    try:
+        return solicitud_service.listar_solicitudes(estado)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
