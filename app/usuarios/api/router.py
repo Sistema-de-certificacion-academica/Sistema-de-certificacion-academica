@@ -23,25 +23,21 @@ def registro_estudiante(user_data: UserCreate):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
+@router.get("/{usuario_id}", status_code=status.HTTP_200_OK)
+def consultar_usuario(usuario_id: int, current_user: dict = Depends(require_admin)):
+    try:
+        return usuario_services.obtener_usuario_por_id(usuario_id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
 @router.put("/{usuario_id}", status_code=status.HTTP_200_OK)
 def actualizar_usuario(usuario_id: int, user_data: UserUpdate, current_user: dict = Depends(require_admin)):
     try:
         return usuario_services.actualizar_perfil_usuario(usuario_id, user_data)
-    except ServiceError as e:
-        error_codes = {404: "NOT_FOUND", 409: "CONFLICT", 400: "BAD_REQUEST"}
-        raise HTTPException(
-            status_code=e.status_code,
-            detail={
-                "success": False,
-                "statusCode": e.status_code,
-                "message": "No fue posible actualizar el usuario",
-                "error": {
-                    "error_code": error_codes.get(e.status_code, "BAD_REQUEST"),
-                    "details": e.message,
-                    "timestamp": datetime.utcnow().isoformat() + "Z"
-                }
-            }
-        )          
+    except ConflictError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))    
 
 @router.delete("/{user_id}", status_code=status.HTTP_200_OK)
 def eliminar_usuario(user_id: int, current_user: dict = Depends(require_admin)):
