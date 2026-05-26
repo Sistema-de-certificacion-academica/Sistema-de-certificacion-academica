@@ -59,3 +59,16 @@ class SolicitudResponse(BaseModel):
     estado: str
     comprobante_pago: str
     fecha_solicitud: str
+
+class ActualizarEstadoRequest(BaseModel):
+    estado: str = Field(..., min_length=1)
+    motivo_rechazo: str = None
+
+    @field_validator("estado")
+    @classmethod
+    def validar_estado(cls, v):
+        if v not in {"APROBADA", "RECHAZADA"}:
+            raise ValueError(
+                "El estado solo puede ser APROBADA o RECHAZADA"
+            )
+        return v

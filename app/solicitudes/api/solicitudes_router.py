@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.dependencies import require_estudiante
 from app.solicitudes.domain.solicitudes import SolicitudCreate
 from app.solicitudes.services.solicitudes_service import solicitud_service
-from app.core.dependencies import require_estudiante, require_estudiante_o_admin
+from app.core.dependencies import require_estudiante, require_estudiante_o_admin, require_admin
 from app.solicitudes.services.solicitudes_service import solicitud_service, ConflictError
+from app.solicitudes.domain.solicitudes import SolicitudCreate, ActualizarEstadoRequest
 
 router = APIRouter(prefix="/api/v1/solicitudes", tags=["Solicitudes"])
 
@@ -40,3 +41,16 @@ def cancelar_solicitud(solicitud_id: int, current_user: dict = Depends(require_e
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=str(e))
+    
+from app.solicitudes.domain.solicitudes import (
+    SolicitudCreate, ActualizarEstadoRequest
+)
+
+@router.put("/{solicitud_id}/estado", status_code=status.HTTP_200_OK)
+def aprobar_rechazar_solicitud(solicitud_id: int, data: ActualizarEstadoRequest, current_user: dict = Depends(require_admin)):
+    try:
+        return solicitud_service.aprobar_rechazar_solicitud(solicitud_id, data)
+    except ConflictError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
