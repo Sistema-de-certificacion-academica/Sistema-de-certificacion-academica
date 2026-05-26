@@ -3,6 +3,7 @@ from app.core.dependencies import require_estudiante
 from app.solicitudes.domain.solicitudes import SolicitudCreate
 from app.solicitudes.services.solicitudes_service import solicitud_service
 from app.core.dependencies import require_estudiante, require_estudiante_o_admin
+from app.solicitudes.services.solicitudes_service import solicitud_service, ConflictError
 
 router = APIRouter(prefix="/api/v1/solicitudes", tags=["Solicitudes"])
 
@@ -27,3 +28,15 @@ def consultar_solicitud(solicitud_id: int, current_user: dict = Depends(require_
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    
+@router.delete("/{solicitud_id}", status_code=status.HTTP_200_OK)
+def cancelar_solicitud(solicitud_id: int, current_user: dict = Depends(require_estudiante)):
+    try:
+        usuario_id = current_user.get("id")
+        return solicitud_service.cancelar_solicitud(solicitud_id, usuario_id)
+    except PermissionError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail=str(e))
+    except ConflictError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=str(e))

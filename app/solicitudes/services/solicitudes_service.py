@@ -1,6 +1,9 @@
 from app.solicitudes.repository.solicitudes_repo import solicitud_repository
 from app.solicitudes.domain.solicitudes import SolicitudCreate
 
+class ConflictError(Exception):
+    pass
+
 class SolicitudService:
 
     def __init__(self):
@@ -51,6 +54,36 @@ class SolicitudService:
                 "comprobante_pago": solicitud.comprobante_pago,
                 "fecha_solicitud": solicitud.fecha_solicitud
             }
+        }
+    
+    def cancelar_solicitud(self, solicitud_id: int, usuario_id: int) -> dict:
+        solicitud = self.repo.get_by_id(solicitud_id)
+
+        # Regla: la solicitud debe existir
+        if not solicitud:
+            raise ValueError(
+                "No existe una solicitud con el id proporcionado"
+            )
+
+        # Regla: debe pertenecer al estudiante
+        if solicitud.usuario_id != usuario_id:
+            raise PermissionError(
+                "No tiene permisos para cancelar esta solicitud"
+            )
+
+        # Regla del domain: solo se puede cancelar si está PENDIENTE
+        if not solicitud.puede_cancelarse():
+            raise ConflictError(
+                "Solo se pueden cancelar solicitudes en estado PENDIENTE"
+            )
+
+        self.repo.delete(solicitud_id)
+
+        return {
+            "success": True,
+            "statusCode": 204,
+            "message": "Solicitud cancelada correctamente",
+            "data": None
         }
 
 solicitud_service = SolicitudService()
