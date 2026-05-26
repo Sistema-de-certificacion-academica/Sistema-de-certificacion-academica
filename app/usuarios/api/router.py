@@ -1,7 +1,9 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.dependencies import require_admin
-from app.usuarios.domain.usuarios import UserCreate
-from app.usuarios.services.usuario_service import UserService
+from app.usuarios.domain.usuarios import UserCreate, UserUpdate
+from app.usuarios.services.usuario_service import ServiceError, UserService
 
 router = APIRouter(prefix="/api/v1/usuarios", tags=["Usuarios"])
 user_service = UserService()
@@ -32,4 +34,32 @@ def registro_estudiante(user_data: UserCreate):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(e)
+        )
+
+@router.put("/{usuario_id}", status_code=status.HTTP_200_OK)
+def actualizar_usuario(
+    usuario_id: int,
+    user_data: UserUpdate,
+    current_user: dict = Depends(require_admin),
+):
+    try:
+        return user_service.actualizar_perfil_usuario(usuario_id, user_data)
+    except ServiceError as e:
+        error_codes = {
+            404: "NOT_FOUND",
+            409: "CONFLICT",
+            400: "BAD_REQUEST",
+        }
+        raise HTTPException(
+            status_code=e.status_code,
+            detail={
+                "success": False,
+                "statusCode": e.status_code,
+                "message": "No fue posible actualizar el usuario",
+                "error": {
+                    "error_code": error_codes.get(e.status_code, "BAD_REQUEST"),
+                    "details": e.message,
+                    "timestamp": datetime.utcnow().isoformat() + "Z"
+                }
+            }
         )
