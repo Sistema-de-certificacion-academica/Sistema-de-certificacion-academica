@@ -90,9 +90,9 @@ class UserService:
     def obtener_usuario_por_id(self, usuario_id: int) -> dict:
         user = self.repository.get_by_id(usuario_id)
         if user is None:
-            raise ServiceError(
-                "No existe un usuario con el id proporcionado", 404
-            )
+            raise ValueError(
+            "No existe un usuario con el id proporcionado"
+        )
         return {
             "success": True,
             "statusCode": 200,
@@ -109,9 +109,9 @@ class UserService:
     def actualizar_perfil_usuario(self, usuario_id: int, user_data: UserUpdate) -> dict:
         user = self.repository.get_by_id(usuario_id)
         if user is None:
-            raise ServiceError(
-                "No existe un usuario con el id proporcionado", 404
-            )
+            raise ValueError(
+            "No existe un usuario con el id proporcionado"
+        )
 
         if user_data.correo is not None and user_data.correo != user.correo:
             existing = self.repository.get_by_correo(user_data.correo)
