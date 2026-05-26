@@ -1,5 +1,5 @@
 from app.solicitudes.repository.solicitudes_repo import solicitud_repository
-from app.solicitudes.domain.solicitudes import SolicitudCreate, ActualizarEstadoRequest
+from app.solicitudes.domain.solicitudes import SolicitudCreate, ActualizarEstadoRequest, ESTADOS_SOLICITUD
 
 class ConflictError(Exception):
     pass
@@ -123,5 +123,37 @@ class SolicitudService:
             response["data"]["motivo_rechazo"] = data.motivo_rechazo
 
         return response
+    
+    def listar_solicitudes(self, estado: str = None) -> dict:
+        # Regla: estado debe ser válido si se proporciona
+        if estado and estado not in ESTADOS_SOLICITUD:
+            raise ValueError("El estado proporcionado no es válido")
+
+        solicitudes = self.repo.get_all(estado)
+
+        if not solicitudes:
+            return {
+                "success": True,
+                "statusCode": 200,
+                "message": "No hay solicitudes registradas",
+                "data": []
+            }
+
+        return {
+            "success": True,
+            "statusCode": 200,
+            "message": "Solicitudes encontradas",
+            "data": [
+                {
+                    "id": s.id,
+                    "usuario_id": s.usuario_id,
+                    "tipo_certificado": s.tipo_certificado,
+                    "estado": s.estado,
+                    "comprobante_pago": s.comprobante_pago,
+                    "fecha_solicitud": s.fecha_solicitud
+                }
+                for s in solicitudes
+            ]
+        }
 
 solicitud_service = SolicitudService()
