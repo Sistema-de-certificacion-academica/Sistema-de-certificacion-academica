@@ -10,6 +10,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from app.autenticacion.api.auth_router import router as auth_router
 from app.usuarios.api.router import router as usuarios_router
+from app.solicitudes.api.solicitudes_router import router as solicitudes_router
 
 app = FastAPI(
     title="UniCert API",
@@ -85,6 +86,7 @@ def validation_exception_handler(request, exc: RequestValidationError):
 
 app.include_router(auth_router)
 app.include_router(usuarios_router)
+app.include_router(solicitudes_router)
 
 @app.get("/")
 def root():
