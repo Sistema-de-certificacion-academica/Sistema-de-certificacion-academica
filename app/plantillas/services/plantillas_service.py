@@ -1,5 +1,5 @@
 from app.plantillas.repository.plantillas_repo import template_repository
-from app.plantillas.domain.plantillas import TemplateCreate
+from app.plantillas.domain.plantillas import TemplateCreate, TemplateUpdate
 
 class TemplateService:
 
@@ -17,6 +17,34 @@ class TemplateService:
             "success": True,
             "statusCode": 201,
             "message": "Plantilla creada correctamente",
+            "data": {
+                "id": plantilla.id,
+                "nombre": plantilla.nombre,
+                "tipo_certificado": plantilla.tipo_certificado,
+                "estructura": plantilla.estructura,
+                "activa": plantilla.activa
+            }
+        }
+
+    def editar_plantilla(self, plantilla_id: int, data: TemplateUpdate) -> dict:
+        plantilla = self.repo.get_by_id(plantilla_id)
+        if not plantilla:
+            raise ValueError("No existe una plantilla con el id proporcionado")
+
+        if self.repo.tiene_certificados(plantilla_id):
+            raise ValueError("La plantilla no puede editarse porque ya fue usada")
+
+        plantilla = self.repo.update(
+            plantilla_id,
+            nombre=data.nombre,
+            tipo_certificado=data.tipo_certificado,
+            estructura=data.estructura
+        )
+
+        return {
+            "success": True,
+            "statusCode": 200,
+            "message": "Plantilla actualizada correctamente",
             "data": {
                 "id": plantilla.id,
                 "nombre": plantilla.nombre,

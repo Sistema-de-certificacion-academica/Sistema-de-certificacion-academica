@@ -6,6 +6,7 @@ class Plantilla:
         self.estructura = estructura
         self.activa = activa
 
+from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
 class TemplateCreate(BaseModel):
@@ -17,6 +18,18 @@ class TemplateCreate(BaseModel):
     @classmethod
     def validar_estructura(cls, v):
         if not isinstance(v, list) or len(v) == 0:
+            raise ValueError("La estructura debe contener al menos un campo")
+        return v
+
+class TemplateUpdate(BaseModel):
+    nombre: Optional[str] = Field(None, min_length=1)
+    tipo_certificado: Optional[str] = Field(None, min_length=1)
+    estructura: Optional[list] = None
+
+    @field_validator("estructura")
+    @classmethod
+    def validar_estructura(cls, v):
+        if v is not None and (not isinstance(v, list) or len(v) == 0):
             raise ValueError("La estructura debe contener al menos un campo")
         return v
 
