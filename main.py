@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.autenticacion.api.auth_router import router as auth_router
 from app.usuarios.api.router import router as usuarios_router
 from app.solicitudes.api.solicitudes_router import router as solicitudes_router
+from app.plantillas.api.plantillas_router import router as plantillas_router
 
 app = FastAPI(
     title="UniCert API",
@@ -82,6 +83,7 @@ app.include_router(auth_router)
 app.include_router(usuarios_router)
 app.include_router(solicitudes_router)
 app.include_router(verificaciones_router)
+app.include_router(plantillas_router)
 
 @app.get("/")
 def root():
