@@ -74,3 +74,8 @@ class UserRepository:
     def clear(cls):
         cls._users.clear()
         cls._next_id = 1
+
+    def get_all(self, rol: str = None) -> list[User]:
+        if rol:
+            return [u for u in self._users if u.rol == rol]
+        return self._users.copy()
