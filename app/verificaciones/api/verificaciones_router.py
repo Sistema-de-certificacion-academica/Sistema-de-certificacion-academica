@@ -13,3 +13,14 @@ def registrar_consulta(uuid_consultado: str, request: Request):
 @router.get("/consultas", status_code=status.HTTP_200_OK)
 def listar_consultas(uuid: Optional[str] = None, current_user: dict = Depends(require_admin)):
     return verificacion_service.listar_consultas(uuid)
+
+@router.get("/{codigo}", status_code=status.HTTP_200_OK)
+def verificar_certificado(codigo: str, request: Request):
+    ip = request.client.host
+    try:
+        return verificacion_service.verificar_certificado(codigo, ip)
+    except ValueError as e:
+        mensaje = str(e)
+        if "formato" in mensaje.lower():
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=mensaje)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=mensaje)

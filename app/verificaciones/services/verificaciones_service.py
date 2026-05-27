@@ -45,5 +45,42 @@ class VerificacionService:
                 for v in verificaciones
             ]
         }
+    
+    def verificar_certificado(self, uuid: str, ip_verificador: str) -> dict:
+        if len(uuid) < 8:
+            raise ValueError("El formato del UUID no es válido")
+
+        self.registrar_consulta(uuid, ip_verificador)
+
+        certificado = self.repo.get_certificado_by_uuid(uuid)
+
+        if not certificado:
+            raise ValueError("No existe un certificado con el UUID proporcionado")
+
+        if certificado.esta_anulado():
+            return {
+                "success": True,
+                "statusCode": 200,
+                "message": "Certificado no válido",
+                "data": {
+                    "valido": False,
+                    "uuid": certificado.uuid,
+                    "estado": "ANULADO"
+                }
+            }
+
+        return {
+            "success": True,
+            "statusCode": 200,
+            "message": "Certificado verificado correctamente",
+            "data": {
+                "valido": True,
+                "uuid": certificado.uuid,
+                "estudiante": certificado.estudiante,
+                "tipo_certificado": certificado.tipo_certificado,
+                "fecha_emision": certificado.fecha_emision,
+                "estado": "VIGENTE"
+            }
+        }
 
 verificacion_service = VerificacionService()
