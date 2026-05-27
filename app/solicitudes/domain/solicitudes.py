@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, field_validator
 from datetime import date
+from app.plantillas.repository.plantillas_repo import template_repository
 
 TIPOS_CERTIFICADO = frozenset({
     "CERTIFICADO_ESTUDIO",
@@ -22,11 +23,9 @@ class SolicitudCreate(BaseModel):
     @field_validator("tipo_certificado")
     @classmethod
     def validar_tipo(cls, v):
-        if v not in TIPOS_CERTIFICADO:
-            raise ValueError(
-                f"Tipo de certificado no válido. "
-                f"Tipos permitidos: {', '.join(TIPOS_CERTIFICADO)}"
-            )
+        plantilla = template_repository.get_activa_by_tipo(v)
+        if not plantilla:
+            raise ValueError("No existe una plantilla activa para ese tipo de certificado")
         return v
 
     @field_validator("comprobante_pago")
@@ -68,7 +67,5 @@ class ActualizarEstadoRequest(BaseModel):
     @classmethod
     def validar_estado(cls, v):
         if v not in {"APROBADA", "RECHAZADA"}:
-            raise ValueError(
-                "El estado solo puede ser APROBADA o RECHAZADA"
-            )
+            raise ValueError("El estado solo puede ser APROBADA o RECHAZADA")
         return v
