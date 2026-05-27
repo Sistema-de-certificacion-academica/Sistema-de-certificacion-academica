@@ -1,9 +1,8 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.dependencies import require_admin
 from app.usuarios.domain.usuarios import UserCreate, UserUpdate
-from app.usuarios.services.usuario_service import usuario_services, ConflictError, ServiceError
+from app.usuarios.services.usuario_service import usuario_services, ConflictError
+from typing import Optional
 
 router = APIRouter(prefix="/api/v1/usuarios", tags=["Usuarios"])
 
@@ -51,3 +50,9 @@ def eliminar_usuario(user_id: int, current_user: dict = Depends(require_admin)):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
+@router.get("", status_code=status.HTTP_200_OK)
+def listar_usuarios(rol: Optional[str] = None, current_user: dict = Depends(require_admin)):
+    try:
+        return usuario_services.listar_usuarios(rol)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

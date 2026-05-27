@@ -132,6 +132,36 @@ class UserService:
             rol=user_data.rol
         )
         return self._build_update_response(updated_user)
+    
+    def listar_usuarios(self, rol: str = None) -> dict:
+        if rol and rol not in ROLES_PERMITIDOS:
+            raise ValueError("El rol proporcionado no es válido")
+
+        usuarios = self.repository.get_all(rol)
+
+        if not usuarios:
+            return {
+                "success": True,
+                "statusCode": 200,
+                "message": "No hay usuarios registrados en el sistema",
+                "data": []
+            }
+
+        return {
+            "success": True,
+            "statusCode": 200,
+            "message": "Usuarios encontrados",
+            "data": [
+                {
+                    "id": u.id,
+                    "nombre": u.nombre,
+                    "correo": u.correo,
+                    "rol": u.rol,
+                    "activo": u.activo
+                }
+                for u in usuarios
+            ]
+        }
 
 usuario_services = UserService()
 
