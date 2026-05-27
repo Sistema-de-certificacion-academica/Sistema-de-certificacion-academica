@@ -20,8 +20,7 @@ class Certificado:
         return self.estado == "ANULADO"
 
 class Verificacion:
-    def __init__(self, id: int, uuid_consultado: str,
-                 ip_verificador: str):
+    def __init__(self, id: int, uuid_consultado: str, ip_verificador: str):
         self.id = id
         self.uuid_consultado = uuid_consultado
         self.ip_verificador = ip_verificador
