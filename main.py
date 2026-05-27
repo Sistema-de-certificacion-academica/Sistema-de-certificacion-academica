@@ -1,9 +1,8 @@
 import sys
 import os
 from datetime import datetime
-
 sys.path.insert(0, os.path.dirname(__file__))
-
+from app.verificaciones.api.verificaciones_router import router as verificaciones_router
 from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
@@ -18,13 +17,8 @@ app = FastAPI(
     version="1.0.0"
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True,
+                   allow_methods=["*"], allow_headers=["*"])
 
 @app.exception_handler(HTTPException)
 def http_exception_handler(request, exc: HTTPException):
@@ -87,6 +81,7 @@ def validation_exception_handler(request, exc: RequestValidationError):
 app.include_router(auth_router)
 app.include_router(usuarios_router)
 app.include_router(solicitudes_router)
+app.include_router(verificaciones_router)
 
 @app.get("/")
 def root():

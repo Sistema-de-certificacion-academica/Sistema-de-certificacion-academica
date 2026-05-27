@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 
 ESTADOS_CERTIFICADO = frozenset({"DISPONIBLE", "ANULADO", "VIGENTE"})
@@ -18,6 +18,14 @@ class Certificado:
 
     def esta_anulado(self) -> bool:
         return self.estado == "ANULADO"
+
+class Verificacion:
+    def __init__(self, id: int, uuid_consultado: str,
+                 ip_verificador: str):
+        self.id = id
+        self.uuid_consultado = uuid_consultado
+        self.ip_verificador = ip_verificador
+        self.timestamp = datetime.utcnow().isoformat() + "Z"
 
 class VerificacionResponse(BaseModel):
     valido: bool

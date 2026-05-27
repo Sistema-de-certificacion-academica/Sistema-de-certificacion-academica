@@ -1,15 +1,22 @@
 from typing import Optional
-from app.verificaciones.domain.verificaciones import Certificado
-import hashlib
+from app.verificaciones.domain.verificaciones import Certificado, Verificacion
 
 class VerificacionRepository:
     _certificados: list[Certificado] = []
+    _verificaciones: list[Verificacion] = []
+    _siguiente_id: int = 1
 
     def __init__(self):
-        if not self._certificados:
+        if not type(self)._certificados:
             self._seed()
 
     def _seed(self):
+        """
+        Certificados de prueba mientras el módulo
+        de generación no esté listo.
+        TODO: conectar con módulo de certificados.
+        """
+        import hashlib
         certificados_prueba = [
             Certificado(
                 uuid="550e8400-e29b-41d4-a716-446655440000",
@@ -34,10 +41,18 @@ class VerificacionRepository:
         ]
         type(self)._certificados.extend(certificados_prueba)
 
-    def get_by_uuid(self, uuid: str) -> Optional[Certificado]:
+    def get_certificado_by_uuid(self, uuid: str) -> Optional[Certificado]:
         return next((c for c in self._certificados if c.uuid == uuid), None)
 
-    def get_all(self) -> list[Certificado]:
-        return self._certificados.copy()
+    def create_verificacion(self, uuid_consultado: str, ip_verificador: str) -> Verificacion:
+        verificacion = Verificacion(id=type(self)._siguiente_id, uuid_consultado=uuid_consultado, ip_verificador=ip_verificador)
+        type(self)._verificaciones.append(verificacion)
+        type(self)._siguiente_id += 1
+        return verificacion
+
+    def get_verificaciones(self, uuid: str = None) -> list[Verificacion]:
+        if uuid:
+            return [v for v in self._verificaciones if v.uuid_consultado == uuid]
+        return self._verificaciones.copy()
 
 verificacion_repository = VerificacionRepository()
