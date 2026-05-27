@@ -43,6 +43,9 @@ class TemplateRepository:
     def tiene_certificados(self, plantilla_id: int) -> bool:
         return plantilla_id in self._ids_con_certificados
 
+    def get_all(self) -> list[Plantilla]:
+        return self._plantillas.copy()
+
     def marcar_como_usada(self, plantilla_id: int):
         self._ids_con_certificados.add(plantilla_id)
 

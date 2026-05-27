@@ -15,6 +15,10 @@ def crear_plantilla(data: TemplateCreate, current_user: dict = Depends(require_a
             detail=str(e)
         )
 
+@router.get("", status_code=status.HTTP_200_OK)
+def listar_plantillas(current_user: dict = Depends(require_admin)):
+    return template_service.listar_plantillas()
+
 @router.put("/{plantilla_id}", status_code=status.HTTP_200_OK)
 def editar_plantilla(plantilla_id: int, data: TemplateUpdate, current_user: dict = Depends(require_admin)):
     try:
