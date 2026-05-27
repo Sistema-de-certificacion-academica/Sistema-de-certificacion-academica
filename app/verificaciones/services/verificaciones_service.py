@@ -1,4 +1,5 @@
 from app.verificaciones.repository.verificaciones_repo import verificacion_repository
+import hashlib
 
 class VerificacionService:
 
@@ -80,6 +81,38 @@ class VerificacionService:
                 "tipo_certificado": certificado.tipo_certificado,
                 "fecha_emision": certificado.fecha_emision,
                 "estado": "VIGENTE"
+            }
+        }
+    
+    def validar_integridad(self, uuid: str ) -> dict:
+        if len(uuid) < 8:
+            raise ValueError("El formato del UUID no es válido")
+
+        certificado = self.repo.get_certificado_by_uuid(uuid)
+
+        if not certificado:
+            raise ValueError("No existe un certificado con el UUID proporcionado")
+
+        # Recalcula el hash del archivo
+        # TODO: cuando módulo de certificados esté listo
+        # recalcular hash del PDF real
+        hash_recalculado = hashlib.sha256(f"certificado_{certificado.estudiante.split()[0].lower()}".encode()).hexdigest()
+
+        integro = certificado.hash_archivo == hash_recalculado
+
+        return {
+            "success": True,
+            "statusCode": 200,
+            "message": "Integridad del certificado verificada",
+            "data": {
+                "uuid": certificado.uuid,
+                "integro": integro,
+                "fecha_emision": certificado.fecha_emision,
+                "mensaje": (
+                    "El documento no ha sido alterado desde su emisión"
+                    if integro else
+                    "El documento ha sido modificado y no es confiable"
+                )
             }
         }
 

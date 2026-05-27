@@ -37,8 +37,18 @@ class VerificacionRepository:
                 hash_archivo=hashlib.sha256(
                     b"certificado_hansel"
                 ).hexdigest()
+            ),
+
+            Certificado(
+                uuid="770a1600-g41d-63f6-c938-668877662222",
+                estudiante="Carlos Perez",
+                tipo_certificado="CERTIFICADO_GRADUACION",
+                fecha_emision="2026-01-15",
+                estado="DISPONIBLE",
+                hash_archivo="hash_alterado_diferente"  # simula documento alterado
             )
         ]
+
         type(self)._certificados.extend(certificados_prueba)
 
     def get_certificado_by_uuid(self, uuid: str) -> Optional[Certificado]:
