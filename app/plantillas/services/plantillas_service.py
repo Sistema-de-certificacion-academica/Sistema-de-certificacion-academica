@@ -54,4 +54,28 @@ class TemplateService:
             }
         }
 
+    def listar_plantillas(self) -> dict:
+        plantillas = self.repo.get_all()
+        if not plantillas:
+            return {
+                "success": True,
+                "statusCode": 200,
+                "message": "No hay plantillas registradas",
+                "data": []
+            }
+        return {
+            "success": True,
+            "statusCode": 200,
+            "message": "Lista de plantillas obtenida",
+            "data": [
+                {
+                    "id": p.id,
+                    "nombre": p.nombre,
+                    "tipo_certificado": p.tipo_certificado,
+                    "activa": p.activa
+                }
+                for p in plantillas
+            ]
+        }
+
 template_service = TemplateService()
