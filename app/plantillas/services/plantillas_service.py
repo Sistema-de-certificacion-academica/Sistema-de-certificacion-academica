@@ -1,12 +1,28 @@
-from app.plantillas.repository.plantillas_repo import template_repository
-from app.plantillas.domain.plantillas import TemplateCreate, TemplateUpdate
+from app.plantillas.repository.plantillas_repo import plantilla_repository
+from app.plantillas.domain.plantillas import PlantillaCreate, PlantillaUpdate
 
-class TemplateService:
+# Tipos de certificados permitidos por la institución
+TIPOS_CERTIFICADO_PERMITIDOS = {
+    "CERTIFICADO_ESTUDIO",
+    "CERTIFICADO_NOTAS",
+    "CERTIFICADO_GRADUACION",
+    "CERTIFICADO_CONDUCTA",
+    "PAZ_Y_SALVO"
+}
+
+class PlantillaService:
 
     def __init__(self):
-        self.repo = template_repository
+        self.repo = plantilla_repository
 
-    def crear_plantilla(self, data: TemplateCreate) -> dict:
+    def _validar_tipo_certificado(self, tipo_certificado: str) -> None:
+        """Valida que el tipo de certificado sea permitido."""
+        if tipo_certificado not in TIPOS_CERTIFICADO_PERMITIDOS:
+            raise ValueError("El tipo de certificado no es válido")
+
+    def crear_plantilla(self, data: PlantillaCreate) -> dict:
+        self._validar_tipo_certificado(data.tipo_certificado)
+        
         existente = self.repo.get_activa_by_tipo(data.tipo_certificado)
         if existente:
             raise ValueError(f"Ya existe una plantilla activa para el tipo de certificado '{data.tipo_certificado}'")
@@ -26,13 +42,16 @@ class TemplateService:
             }
         }
 
-    def editar_plantilla(self, plantilla_id: int, data: TemplateUpdate) -> dict:
+    def editar_plantilla(self, plantilla_id: int, data: PlantillaUpdate) -> dict:
         plantilla = self.repo.get_by_id(plantilla_id)
         if not plantilla:
-            raise ValueError("No existe una plantilla con el id proporcionado")
+            raise ValueError("La plantilla no existe")
 
         if self.repo.tiene_certificados(plantilla_id):
             raise ValueError("La plantilla no puede editarse porque ya fue usada")
+
+        if data.tipo_certificado is not None:
+            self._validar_tipo_certificado(data.tipo_certificado)
 
         plantilla = self.repo.update(
             plantilla_id,
@@ -66,7 +85,7 @@ class TemplateService:
         return {
             "success": True,
             "statusCode": 200,
-            "message": "Lista de plantillas obtenida",
+            "message": "Plantillas encontradas",
             "data": [
                 {
                     "id": p.id,
@@ -78,4 +97,4 @@ class TemplateService:
             ]
         }
 
-template_service = TemplateService()
+plantilla_service = PlantillaService()

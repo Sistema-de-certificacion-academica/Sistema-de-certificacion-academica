@@ -1,12 +1,12 @@
 from typing import Optional
-from app.plantillas.domain.plantillas import Plantilla, TemplateCreate
+from app.plantillas.domain.plantillas import Plantilla, PlantillaCreate
 
-class TemplateRepository:
+class PlantillaRepository:
     _plantillas: list[Plantilla] = []
     _next_id: int = 1
     _ids_con_certificados: set[int] = set()
 
-    def save(self, data: TemplateCreate) -> Plantilla:
+    def save(self, data: PlantillaCreate) -> Plantilla:
         plantilla = Plantilla(
             id=type(self)._next_id,
             nombre=data.nombre,
@@ -49,4 +49,4 @@ class TemplateRepository:
     def marcar_como_usada(self, plantilla_id: int):
         self._ids_con_certificados.add(plantilla_id)
 
-template_repository = TemplateRepository()
+plantilla_repository = PlantillaRepository()
