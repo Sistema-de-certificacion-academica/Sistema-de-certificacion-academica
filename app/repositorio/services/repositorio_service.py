@@ -66,6 +66,20 @@ class RepositorioService:
         }
 
 
+    def descargar_pdf_certificado(self, uuid_str: str, usuario_id: int, rol: str) -> str:
+        certificado = self.repo.get_by_uuid(uuid_str)
+
+        if not certificado:
+            raise ValueError("No existe un certificado con el UUID proporcionado")
+
+        if certificado.estado == "ANULADO":
+            raise RuntimeError("El certificado está anulado y no puede descargarse")
+
+        if rol == "ESTUDIANTE" and certificado.usuario_id != usuario_id:
+            raise PermissionError("No tiene permisos para descargar este certificado")
+
+        return certificado.ruta_archivo
+
     def obtener_metadatos_publicos(self, uuid_str: str) -> dict:
         certificado = self.repo.get_by_uuid(uuid_str)
 
