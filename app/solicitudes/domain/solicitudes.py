@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, field_validator
 from datetime import date
-from app.plantillas.repository.plantillas_repo import template_repository
+from app.plantillas.repository.plantillas_repo import plantilla_repository
 
 TIPOS_CERTIFICADO = frozenset({
     "CERTIFICADO_ESTUDIO",
@@ -23,7 +23,7 @@ class SolicitudCreate(BaseModel):
     @field_validator("tipo_certificado")
     @classmethod
     def validar_tipo(cls, v):
-        plantilla = template_repository.get_activa_by_tipo(v)
+        plantilla = plantilla_repository.get_activa_by_tipo(v)
         if not plantilla:
             raise ValueError("No existe una plantilla activa para ese tipo de certificado")
         return v

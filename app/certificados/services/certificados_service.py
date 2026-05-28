@@ -3,7 +3,7 @@ from uuid import uuid4
 from app.certificados.repository.certificados_repo import certificate_repository
 from app.certificados.domain.certificados import CertificateCreate
 from app.solicitudes.repository.solicitudes_repo import solicitud_repository
-from app.plantillas.repository.plantillas_repo import template_repository
+from app.plantillas.repository.plantillas_repo import plantilla_repository
 
 class CertificateService:
 
@@ -17,7 +17,7 @@ class CertificateService:
         if solicitud.estado != "APROBADA":
             raise ValueError("La solicitud no está aprobada")
 
-        plantilla = template_repository.get_by_id(data.plantilla_id)
+        plantilla = plantilla_repository.get_by_id(data.plantilla_id)
         if not plantilla:
             raise ValueError("No existe una plantilla con el id proporcionado")
         if not plantilla.activa:
@@ -30,7 +30,7 @@ class CertificateService:
         fecha_emision = datetime.utcnow().isoformat() + "Z"
         certificado = self.repo.save(data, uuid_value, fecha_emision)
 
-        template_repository.marcar_como_usada(data.plantilla_id)
+        plantilla_repository.marcar_como_usada(data.plantilla_id)
 
         return {
             "success": True,

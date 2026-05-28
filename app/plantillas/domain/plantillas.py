@@ -9,7 +9,7 @@ class Plantilla:
 from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
-class TemplateCreate(BaseModel):
+class PlantillaCreate(BaseModel):
     nombre: str = Field(..., min_length=1)
     tipo_certificado: str = Field(..., min_length=1)
     estructura: list
@@ -21,7 +21,7 @@ class TemplateCreate(BaseModel):
             raise ValueError("La estructura debe contener al menos un campo")
         return v
 
-class TemplateUpdate(BaseModel):
+class PlantillaUpdate(BaseModel):
     nombre: Optional[str] = Field(None, min_length=1)
     tipo_certificado: Optional[str] = Field(None, min_length=1)
     estructura: Optional[list] = None
@@ -33,12 +33,9 @@ class TemplateUpdate(BaseModel):
             raise ValueError("La estructura debe contener al menos un campo")
         return v
 
-class TemplateResponse(BaseModel):
+class PlantillaResponse(BaseModel):
     id: int
     nombre: str
     tipo_certificado: str
     estructura: list
     activa: bool
-
-    class Config:
-        from_attributes = True
