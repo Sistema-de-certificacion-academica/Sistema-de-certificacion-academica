@@ -1,3 +1,4 @@
+import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.dependencies import require_estudiante_o_admin
 from app.repositorio.services.repositorio_service import repositorio_service
@@ -52,4 +53,23 @@ def consultar_historial(
                     "timestamp": datetime.utcnow().isoformat() + "Z"
                 }
             }
+        )
+
+
+@router.get("/metadatos/{uuid}", status_code=status.HTTP_200_OK)
+def consultar_metadatos(uuid: str):
+    try:
+        uuid.UUID(uuid)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El formato del UUID no es válido"
+        )
+
+    try:
+        return repositorio_service.obtener_metadatos_publicos(uuid)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
         )
