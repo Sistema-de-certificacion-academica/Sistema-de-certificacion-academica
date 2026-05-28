@@ -47,4 +47,34 @@ class CertificateService:
             }
         }
 
+    def anular_certificado(self, certificado_id: int) -> dict:
+        certificado = self.repo.get_by_id(certificado_id)
+        if not certificado:
+            raise ValueError("El certificado no existe")
+        if certificado.estado == "ANULADO":
+            raise ValueError("El certificado ya está anulado")
+
+        certificado = self.repo.update_estado(certificado_id, "ANULADO")
+        
+        # Construir datos del estudiante desde el certificado
+        estudiante_data = {}
+        if certificado.nombre_estudiante:
+            estudiante_data = {
+                "nombre": certificado.nombre_estudiante,
+                "programa_academico": certificado.programa_academico
+            }
+
+        return {
+            "success": True,
+            "statusCode": 200,
+            "message": "Certificado anulado correctamente",
+            "data": {
+                "id": certificado.id,
+                "uuid": certificado.uuid,
+                "estado": certificado.estado,
+                "fecha_emision": certificado.fecha_emision,
+                "estudiante": estudiante_data
+            }
+        }
+
 certificate_service = CertificateService()
