@@ -1,5 +1,5 @@
 from app.repositorio.repository.repositorio_repo import repositorio_repository
-from app.repositorio.domain.repositorio import ESTADOS_REPOSITORIO, CertificateRepositoryResponse
+from app.repositorio.domain.repositorio import ESTADOS_REPOSITORIO, CertificateRepositoryResponse, CertificateHistoryItem
 
 
 class RepositorioService:
@@ -32,6 +32,36 @@ class RepositorioService:
             "statusCode": 200,
             "message": "Certificado encontrado",
             "data": data.model_dump()
+        }
+
+    def obtener_historial_estudiante(self, estudiante_id: int, usuario_id: int, rol: str) -> dict:
+        if rol == "ESTUDIANTE" and estudiante_id != usuario_id:
+            raise PermissionError("No tiene permisos para consultar este historial")
+
+        certificados = self.repo.get_by_usuario_id(estudiante_id)
+
+        if not certificados:
+            return {
+                "success": True,
+                "statusCode": 200,
+                "message": "El estudiante no tiene certificados emitidos",
+                "data": []
+            }
+
+        return {
+            "success": True,
+            "statusCode": 200,
+            "message": "Historial de certificados encontrado",
+            "data": [
+                CertificateHistoryItem(
+                    uuid=c.uuid,
+                    certificado_id=c.certificado_id,
+                    tipo_certificado=c.tipo_certificado,
+                    fecha_emision=c.fecha_emision,
+                    estado=c.estado
+                ).model_dump()
+                for c in certificados
+            ]
         }
 
 
