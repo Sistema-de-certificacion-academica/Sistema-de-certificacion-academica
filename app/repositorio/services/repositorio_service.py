@@ -1,5 +1,6 @@
+import uuid
 from app.repositorio.repository.repositorio_repo import repositorio_repository
-from app.repositorio.domain.repositorio import ESTADOS_REPOSITORIO, CertificateRepositoryResponse, CertificateHistoryItem
+from app.repositorio.domain.repositorio import ESTADOS_REPOSITORIO, CertificateRepositoryResponse, CertificateHistoryItem, CertificateMetadataResponse
 
 
 class RepositorioService:
@@ -62,6 +63,27 @@ class RepositorioService:
                 ).model_dump()
                 for c in certificados
             ]
+        }
+
+
+    def obtener_metadatos_publicos(self, uuid_str: str) -> dict:
+        certificado = self.repo.get_by_uuid(uuid_str)
+
+        if not certificado:
+            raise ValueError("No existe un certificado con el UUID proporcionado")
+
+        data = CertificateMetadataResponse(
+            uuid=certificado.uuid,
+            tipo_certificado=certificado.tipo_certificado,
+            fecha_emision=certificado.fecha_emision,
+            estado=certificado.estado
+        )
+
+        return {
+            "success": True,
+            "statusCode": 200,
+            "message": "Metadatos del certificado encontrados",
+            "data": data.model_dump()
         }
 
 

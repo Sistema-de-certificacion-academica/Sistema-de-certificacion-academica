@@ -32,3 +32,10 @@ class CertificateHistoryItem(BaseModel):
     tipo_certificado: str
     fecha_emision: str
     estado: str
+
+
+class CertificateMetadataResponse(BaseModel):
+    uuid: str
+    tipo_certificado: str
+    fecha_emision: str
+    estado: str
