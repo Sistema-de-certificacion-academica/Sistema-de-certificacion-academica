@@ -14,21 +14,20 @@ class AuthService:
         if not usuario:
             raise ValueError("Correo no registrado en el sistema")
 
-        if usuario.bloqueado:
+        if usuario.esta_bloqueado():
             raise ValueError("Cuenta bloqueada temporalmente")
 
         if not verify_password(data.password, usuario.password):
-
             nuevos_intentos = usuario.intentos_fallidos + 1
             self.repo.actualizar_intentos(data.correo, nuevos_intentos)
 
-            if nuevos_intentos >= 5:
+            if usuario.supero_intentos():
                 self.repo.bloquear_usuario(data.correo)
                 raise ValueError("Cuenta bloqueada por múltiples intentos fallidos")
 
             raise ValueError(
                 f"Contraseña incorrecta. "
-                f"Intentos restantes: {5 - nuevos_intentos}"
+                f"Intentos restantes: {usuario.intentos_restantes()}"
             )
 
         self.repo.resetear_intentos(data.correo)
