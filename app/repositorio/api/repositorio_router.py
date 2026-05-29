@@ -1,5 +1,6 @@
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import FileResponse
 from app.core.dependencies import require_estudiante_o_admin
 from app.repositorio.services.repositorio_service import repositorio_service
 from datetime import datetime
@@ -73,3 +74,38 @@ def consultar_metadatos(uuid: str):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
         )
+
+
+@router.get("/descarga/{uuid}", status_code=status.HTTP_200_OK)
+def descargar_certificado(
+    uuid: str,
+    current_user: dict = Depends(require_estudiante_o_admin)
+):
+    usuario_id = current_user.get("id")
+    rol = current_user.get("rol")
+
+    try:
+        ruta = repositorio_service.descargar_pdf_certificado(uuid, usuario_id, rol)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e)
+        )
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e)
+        )
+
+    return FileResponse(
+        path=ruta,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="certificado_{uuid}.pdf"'
+        }
+    )
