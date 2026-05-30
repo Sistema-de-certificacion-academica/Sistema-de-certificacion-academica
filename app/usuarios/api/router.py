@@ -3,13 +3,11 @@ from fastapi.responses import JSONResponse
 from app.core.dependencies import require_admin
 from app.core.responses import success_response, error_response
 from app.usuarios.domain.usuarios import UserCreate, UserUpdate
-from app.usuarios.services.usuario_service import (
-    usuario_services, ConflictError, RolInvalidoError, AutoeliminacionError
-)
 from typing import Optional
+from app.usuarios.services.usuario_service import (usuario_services, ConflictError, RolInvalidoError, 
+                                                   AutoeliminacionError)
 
 router = APIRouter(prefix="/api/v1/usuarios", tags=["Usuarios"])
-
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 def registrar_usuario(user_data: UserCreate, current_user: dict = Depends(require_admin)):
@@ -38,7 +36,6 @@ def registro_estudiante(user_data: UserCreate):
             content=error_response(409, "No fue posible registrar el usuario", "CONFLICT", str(e))
         )
 
-
 @router.get("", status_code=status.HTTP_200_OK)
 def listar_usuarios(rol: Optional[str] = None, current_user: dict = Depends(require_admin)):
     try:
@@ -50,7 +47,6 @@ def listar_usuarios(rol: Optional[str] = None, current_user: dict = Depends(requ
             status_code=status.HTTP_400_BAD_REQUEST,
             content=error_response(400, "No fue posible listar los usuarios", "BAD_REQUEST", str(e))
         )
-
 
 @router.get("/{usuario_id}", status_code=status.HTTP_200_OK)
 def consultar_usuario(usuario_id: int, current_user: dict = Depends(require_admin)):
@@ -83,7 +79,6 @@ def actualizar_usuario(usuario_id: int, user_data: UserUpdate, current_user: dic
             status_code=status.HTTP_404_NOT_FOUND,
             content=error_response(404, "No fue posible actualizar el usuario", "NOT_FOUND", str(e))
         )
-
 
 @router.delete("/{user_id}", status_code=status.HTTP_200_OK)
 def eliminar_usuario(user_id: int, current_user: dict = Depends(require_admin)):
