@@ -30,7 +30,8 @@ class PlantillaRepository:
                 return p
         return None
 
-    def update(self, plantilla_id: int, nombre: str = None, tipo_certificado: str = None, estructura: list = None) -> Plantilla:
+    def update(self, plantilla_id: int, nombre: str = None,
+               tipo_certificado: str = None, estructura: list = None) -> Plantilla:
         plantilla = self.get_by_id(plantilla_id)
         if nombre is not None:
             plantilla.nombre = nombre
