@@ -68,14 +68,5 @@ def logout(credentials: HTTPAuthorizationCredentials = Depends(security)):
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={
-                "success": False,
-                "statusCode": 401,
-                "message": "No se pudo cerrar la sesión",
-                "error": {
-                    "error_code": "UNAUTHORIZED",
-                    "details": str(e),
-                    "timestamp": datetime.utcnow().isoformat() + "Z"
-                }
-            }
+            detail=str(e)
         )

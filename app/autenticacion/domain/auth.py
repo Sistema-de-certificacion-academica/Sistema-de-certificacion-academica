@@ -18,4 +18,16 @@ class LoginRequest(BaseModel):
             raise ValueError("La contraseña no puede contener espacios")
         return v
 
+class UsuarioAuthData(BaseModel):
+        id: int
+        nombre: str
+        correo: str
+        rol: str
+
+class LoginResponse(BaseModel):
+        success: bool 
+        statusCode: int 
+        message: str 
+        data: dict  
+
 ROLES_VALIDOS = frozenset({"ESTUDIANTE", "ADMINISTRADOR", "EMPRESA_EXTERNA"})

@@ -2,6 +2,10 @@ from app.autenticacion.repository.auth_repository import auth_repository
 from app.autenticacion.domain.auth import LoginRequest 
 from app.core.security import verify_password, create_access_token
 
+class IntentosFallidosError(ValueError):
+    def __init__(self, message: str, intentos_restantes: int):
+        self.intentos_restantes = intentos_restantes
+        super().__init__(message)
 
 class AuthService:
 
@@ -25,10 +29,7 @@ class AuthService:
                 self.repo.bloquear_usuario(data.correo)
                 raise ValueError("Cuenta bloqueada por múltiples intentos fallidos")
 
-            raise ValueError(
-                f"Contraseña incorrecta. "
-                f"Intentos restantes: {usuario.intentos_restantes()}"
-            )
+            raise IntentosFallidosError("Contraseña incorrecta", usuario.intentos_restantes())
 
         self.repo.resetear_intentos(data.correo)
 
@@ -40,20 +41,15 @@ class AuthService:
         })
 
         return {
-            "success": True,
-            "statusCode": 200,
-            "message": "Inicio de sesión exitoso",
-            "data": {
-                "token": token,
-                "tipo_token": "Bearer",
-                "usuario": {
-                    "id": usuario.id,
-                    "nombre": usuario.nombre,
-                    "correo": usuario.correo,
-                    "rol": usuario.rol
-                }
-            }
+        "token": token,
+        "tipo_token": "Bearer",
+        "usuario": {
+            "id": usuario.id,
+            "nombre": usuario.nombre,
+            "correo": usuario.correo,
+            "rol": usuario.rol
         }
+    }
 
     def get_me(self, current_user: dict) -> dict:
         return {
