@@ -1,4 +1,3 @@
-
 from typing import Optional
 from app.usuarios.domain.usuarios import User
 from app.usuarios.domain.usuarios import UserCreate

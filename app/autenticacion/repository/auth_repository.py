@@ -1,4 +1,3 @@
-# app/autenticacion/repository/auth_repository.py
 from typing import Optional
 from app.usuarios.repository.usuario_repo import UserRepository
 
