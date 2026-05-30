@@ -1,0 +1,111 @@
+import uuid
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import FileResponse
+from app.core.dependencies import require_estudiante_o_admin
+from app.repositorio.services.repositorio_service import repositorio_service
+from datetime import datetime
+
+router = APIRouter(
+    prefix="/api/v1/repositorio",
+    tags=["Repositorio"]
+)
+
+
+@router.get("/certificados/{uuid}", status_code=status.HTTP_200_OK)
+def buscar_certificado(
+    uuid: str,
+    current_user: dict = Depends(require_estudiante_o_admin)
+):
+    try:
+        usuario_id = current_user.get("id")
+        rol = current_user.get("rol")
+        return repositorio_service.buscar_certificado_por_uuid(uuid, usuario_id, rol)
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e)
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+
+
+@router.get("/estudiantes/{id}", status_code=status.HTTP_200_OK)
+def consultar_historial(
+    id: int,
+    current_user: dict = Depends(require_estudiante_o_admin)
+):
+    try:
+        usuario_id = current_user.get("id")
+        rol = current_user.get("rol")
+        return repositorio_service.obtener_historial_estudiante(id, usuario_id, rol)
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "success": False,
+                "statusCode": 403,
+                "message": "Acceso denegado",
+                "error": {
+                    "error_code": "FORBIDDEN",
+                    "details": str(e),
+                    "timestamp": datetime.utcnow().isoformat() + "Z"
+                }
+            }
+        )
+
+
+@router.get("/metadatos/{uuid}", status_code=status.HTTP_200_OK)
+def consultar_metadatos(uuid: str):
+    try:
+        uuid.UUID(uuid)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El formato del UUID no es válido"
+        )
+
+    try:
+        return repositorio_service.obtener_metadatos_publicos(uuid)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+
+
+@router.get("/descarga/{uuid}", status_code=status.HTTP_200_OK)
+def descargar_certificado(
+    uuid: str,
+    current_user: dict = Depends(require_estudiante_o_admin)
+):
+    usuario_id = current_user.get("id")
+    rol = current_user.get("rol")
+
+    try:
+        ruta = repositorio_service.descargar_pdf_certificado(uuid, usuario_id, rol)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e)
+        )
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e)
+        )
+
+    return FileResponse(
+        path=ruta,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="certificado_{uuid}.pdf"'
+        }
+    )
