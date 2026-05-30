@@ -39,7 +39,7 @@ ERROR_CODES = {
 }
 
 MESSAGES = {
-    401: "No autorizado",
+    401: "No autenticado",
     403: "Acceso denegado",
 }
 
