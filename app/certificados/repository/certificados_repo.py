@@ -1,52 +1,40 @@
 from typing import Optional
 from uuid import uuid4
-
 from app.certificados.domain.certificados import Certificate
 
-
 class CertificateRepository:
+    _certificados: list[Certificate] = []
+    _next_id: int = 1
+    _seeded: bool = False
 
     def __init__(self):
-        self._certificados: list[Certificate] = []
-        self._next_id: int = 1
-        self._seed()
+        if not type(self)._seeded:
+            self._seed()
+            type(self)._seeded = True
 
     def _seed(self):
-        """Carga certificados de prueba con informacion de estudiantes."""
         iniciales = [
             Certificate(
-                id=1,
-                uuid=str(uuid4()),
-                solicitud_id=1,
-                plantilla_id=1,
-                estado="GENERADO",
-                fecha_emision="2026-03-18T10:00:00Z",
+                id=1, uuid=str(uuid4()), solicitud_id=1, plantilla_id=1,
+                estado="GENERADO", fecha_emision="2026-03-18T10:00:00Z",
                 nombre_estudiante="Erick Gutierrez",
-                programa_academico="Tecnologia en Sistemas",
+                programa_academico="Tecnología en Sistemas"
             ),
             Certificate(
-                id=2,
-                uuid=str(uuid4()),
-                solicitud_id=2,
-                plantilla_id=1,
-                estado="GENERADO",
-                fecha_emision="2026-02-10T09:30:00Z",
+                id=2, uuid=str(uuid4()), solicitud_id=2, plantilla_id=1,
+                estado="GENERADO", fecha_emision="2026-02-10T09:30:00Z",
                 nombre_estudiante="Hansel Rodriguez",
-                programa_academico="Ingenieria de Software",
+                programa_academico="Ingeniería de Software"
             ),
             Certificate(
-                id=3,
-                uuid=str(uuid4()),
-                solicitud_id=3,
-                plantilla_id=1,
-                estado="GENERADO",
-                fecha_emision="2026-01-15T14:20:00Z",
+                id=3, uuid=str(uuid4()), solicitud_id=3, plantilla_id=1,
+                estado="GENERADO", fecha_emision="2026-01-15T14:20:00Z",
                 nombre_estudiante="Carlos Perez",
-                programa_academico="Administracion de Sistemas",
+                programa_academico="Administración de Sistemas"
             ),
         ]
-        self._certificados = iniciales
-        self._next_id = 4
+        type(self)._certificados.extend(iniciales)
+        type(self)._next_id = 4
 
     def obtener_todos(self) -> list[Certificate]:
         return self._certificados.copy()
@@ -61,7 +49,7 @@ class CertificateRepository:
               fecha_emision: str, estado: str = "GENERADO",
               ruta_pdf: str = None) -> Certificate:
         certificado = Certificate(
-            id=self._next_id,
+            id=type(self)._next_id,
             uuid=uuid,
             solicitud_id=solicitud_id,
             plantilla_id=plantilla_id,
@@ -69,8 +57,8 @@ class CertificateRepository:
             fecha_emision=fecha_emision,
             ruta_pdf=ruta_pdf,
         )
-        self._certificados.append(certificado)
-        self._next_id += 1
+        type(self)._certificados.append(certificado)
+        type(self)._next_id += 1
         return certificado
 
     def actualizar_estado(self, id: int, nuevo_estado: str) -> Optional[Certificate]:
@@ -79,6 +67,5 @@ class CertificateRepository:
             return None
         certificado.estado = nuevo_estado
         return certificado
-
 
 certificate_repository = CertificateRepository()

@@ -6,162 +6,71 @@ from app.solicitudes.repository.solicitudes_repo import solicitud_repository
 class ConflictError(Exception):
     pass
 
-class ServiceError(Exception):
-    def __init__(self, message: str, status_code: int = 400):
-        self.message = message
-        self.status_code = status_code
-        super().__init__(message)
+class RolInvalidoError(ValueError):     
+    pass
+
+class AutoeliminacionError(ValueError):
+    pass
 
 class UserService:
-    def __init__(self):
-        self.repository = UserRepository()
-
-    def _build_response(self, user) -> dict:
-        return {
-            "success": True,
-            "statusCode": 201,
-            "message": "Usuario registrado correctamente",
-            "data": {
-                "id": user.id,
-                "nombre": user.nombre,
-                "correo": user.correo,
-                "rol": user.rol,
-                "activo": user.activo
-            }
-        }
-
-    def _build_update_response(self, user) -> dict:
-        return {
-            "success": True,
-            "statusCode": 200,
-            "message": "Usuario actualizado correctamente",
-            "data": {
-                "id": user.id,
-                "nombre": user.nombre,
-                "correo": user.correo,
-                "rol": user.rol,
-                "activo": user.activo
-            }
-        }
+    def __init__(self, repo: UserRepository):
+        self.repository = repo
 
     def registrar_usuario(self, user_data: UserCreate) -> dict:
-        existing_user = self.repository.get_by_correo(user_data.correo)
-        if existing_user:
-            raise ValueError("Ya existe un usuario registrado con ese correo")
+        if self.repository.get_by_correo(user_data.correo):
+            raise ConflictError("Ya existe un usuario registrado con ese correo")
         hashed_pass = hash_password(user_data.password)
         user = self.repository.create(user_data, hashed_pass)
-        return self._build_response(user)
+        return user.to_response()
 
     def registrar_estudiante(self, user_data: UserCreate) -> dict:
         if user_data.rol != "ESTUDIANTE":
-            raise ValueError("El endpoint de registro solo acepta rol ESTUDIANTE")
-        existing_user = self.repository.get_by_correo(user_data.correo)
-        if existing_user:
-            raise ValueError("Ya existe un usuario registrado con ese correo")
+            raise RolInvalidoError("El endpoint de registro solo acepta rol ESTUDIANTE")
+        if self.repository.get_by_correo(user_data.correo):
+            raise ConflictError("Ya existe un usuario registrado con ese correo")
         hashed_pass = hash_password(user_data.password)
         user = self.repository.create(user_data, hashed_pass)
-        return self._build_response(user)
-    
-    def eliminar_usuario(self, user_id: int, admin_id: int) -> dict:
-        # Regla: el usuario debe existir
-        usuario = self.repository.get_by_id(user_id)
-        if not usuario:
-            raise ValueError("No existe un usuario con el id proporcionado")
-
-        # Regla: no puede eliminarse a sí mismo
-        if user_id == admin_id:
-            raise ValueError("No puede eliminarse a si mismo")
-
-        # Regla: no puede tener solicitudes pendientes
-        solicitudes = solicitud_repository.get_by_usuario(user_id)
-        pendientes = [s for s in solicitudes if s.estado == "PENDIENTE"]
-        if pendientes:
-            raise ConflictError("El usuario tiene solicitudes de certificado pendientes")
-
-        self.repository.delete_by_id(user_id)
-
-        return {
-            "success": True,
-            "statusCode": 204,
-            "message": "Usuario eliminado correctamente",
-            "data": None
-        }
+        return user.to_response()
 
     def obtener_usuario_por_id(self, usuario_id: int) -> dict:
         user = self.repository.get_by_id(usuario_id)
         if user is None:
-            raise ValueError(
-            "No existe un usuario con el id proporcionado"
-        )
-        return {
-            "success": True,
-            "statusCode": 200,
-            "message": "Usuario encontrado",
-            "data": {
-                "id": user.id,
-                "nombre": user.nombre,
-                "correo": user.correo,
-                "rol": user.rol,
-                "activo": user.activo
-            }
-        }
+            raise ValueError("No existe un usuario con el id proporcionado")
+        return user.to_response()
+
+    def listar_usuarios(self, rol: str = None) -> list:
+        if rol and rol not in ROLES_PERMITIDOS:
+            raise ValueError("El rol proporcionado no es válido")
+        usuarios = self.repository.get_all(rol)
+        return [u.to_response() for u in usuarios]
 
     def actualizar_perfil_usuario(self, usuario_id: int, user_data: UserUpdate) -> dict:
         user = self.repository.get_by_id(usuario_id)
         if user is None:
-            raise ValueError(
-            "No existe un usuario con el id proporcionado"
-        )
-
+            raise ValueError("No existe un usuario con el id proporcionado")
         if user_data.correo is not None and user_data.correo != user.correo:
             existing = self.repository.get_by_correo(user_data.correo)
             if existing is not None and existing.id != usuario_id:
-                raise ServiceError(
-                    "El correo electrónico ya está en uso por otro usuario", 409
-                )
-
+                raise ConflictError("El correo ya está en uso")
         if user_data.rol is not None and user_data.rol not in ROLES_ACTUALIZABLES:
-            raise ServiceError(
-                "El rol no es válido. Los roles permitidos son: ESTUDIANTE, ADMINISTRADOR", 400
-            )
-
-        updated_user = self.repository.update(
+            raise RolInvalidoError("El rol no es válido")
+        updated = self.repository.update(
             usuario_id,
             nombre=user_data.nombre,
             correo=user_data.correo,
             rol=user_data.rol
         )
-        return self._build_update_response(updated_user)
-    
-    def listar_usuarios(self, rol: str = None) -> dict:
-        if rol and rol not in ROLES_PERMITIDOS:
-            raise ValueError("El rol proporcionado no es válido")
+        return updated.to_response()
 
-        usuarios = self.repository.get_all(rol)
+    def eliminar_usuario(self, user_id: int, admin_id: int) -> None:
+        usuario = self.repository.get_by_id(user_id)
+        if not usuario:
+            raise ValueError("No existe un usuario con el id proporcionado")
+        if user_id == admin_id:
+            raise AutoeliminacionError("No puede eliminarse a si mismo")
+        solicitudes = solicitud_repository.get_by_usuario(user_id)
+        if any(s.estado == "PENDIENTE" for s in solicitudes):
+            raise ConflictError("El usuario tiene solicitudes de certificado pendientes")
+        self.repository.delete_by_id(user_id)
 
-        if not usuarios:
-            return {
-                "success": True,
-                "statusCode": 200,
-                "message": "No hay usuarios registrados en el sistema",
-                "data": []
-            }
-
-        return {
-            "success": True,
-            "statusCode": 200,
-            "message": "Usuarios encontrados",
-            "data": [
-                {
-                    "id": u.id,
-                    "nombre": u.nombre,
-                    "correo": u.correo,
-                    "rol": u.rol,
-                    "activo": u.activo
-                }
-                for u in usuarios
-            ]
-        }
-
-usuario_services = UserService()
-
+usuario_services = UserService(repo=UserRepository())
