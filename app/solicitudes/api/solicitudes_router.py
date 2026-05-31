@@ -90,15 +90,15 @@ def aprobar_rechazar_solicitud(solicitud_id: int, data: ActualizarEstadoRequest,
     except MotivoRequeridoError as e:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content=error_response(400, "No fue posible gestionar la solicitud", "BAD_REQUEST", str(e))
+            content=error_response(400, "No fue posible actualizar la solicitud", "BAD_REQUEST", str(e))
         )
     except ConflictError as e:
         return JSONResponse(
             status_code=status.HTTP_409_CONFLICT,
-            content=error_response(409, "No fue posible gestionar la solicitud", "CONFLICT", str(e))
+            content=error_response(409, "No fue posible actualizar la solicitud", "CONFLICT", str(e))
         )
     except ValueError as e:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            content=error_response(404, "No fue posible gestionar la solicitud", "NOT_FOUND", str(e))
+            content=error_response(404, "No fue posible actualizar la solicitud", "NOT_FOUND", str(e))
         )

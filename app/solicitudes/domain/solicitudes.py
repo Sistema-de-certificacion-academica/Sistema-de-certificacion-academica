@@ -44,8 +44,15 @@ class Solicitud:
             "fecha_solicitud": self.fecha_solicitud
         }
 
-    def to_response_con_motivo(self) -> dict:
-        data = self.to_response()
+    def to_response_gestion(self) -> dict:
+        data = {
+            "id": self.id,
+            "usuario_id": self.usuario_id,
+            "tipo_certificado": self.tipo_certificado,
+            "estado": self.estado,
+            "fecha_solicitud": self.fecha_solicitud
+            # ← sin comprobante_pago
+        }
         if self.motivo_rechazo:
             data["motivo_rechazo"] = self.motivo_rechazo
         return data

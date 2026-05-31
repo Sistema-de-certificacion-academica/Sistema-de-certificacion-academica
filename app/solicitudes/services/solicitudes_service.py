@@ -48,9 +48,11 @@ class SolicitudService:
             raise ConflictError("Solo se pueden aprobar o rechazar solicitudes en estado PENDIENTE")
         if data.estado == "RECHAZADA" and not data.motivo_rechazo:
             raise MotivoRequeridoError("El motivo de rechazo es obligatorio")
-        self.repo.actualizar_estado(solicitud_id, data.estado, data.motivo_rechazo)
+        
+        motivo = data.motivo_rechazo if data.estado == "RECHAZADA" else None
+        self.repo.actualizar_estado(solicitud_id, data.estado, motivo)
         solicitud = self.repo.get_by_id(solicitud_id)
-        return solicitud.to_response_con_motivo()
+        return solicitud.to_response_gestion()
 
     def listar_solicitudes(self, estado: str = None) -> list:
         if estado and estado not in ESTADOS_SOLICITUD:
