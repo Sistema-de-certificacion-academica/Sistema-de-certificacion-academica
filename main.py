@@ -66,15 +66,16 @@ def validation_exception_handler(request, exc: RequestValidationError):
         loc = err.get("loc", [])
         field_path = " -> ".join(str(l) for l in loc if l != "body")
         error_type = err.get("type", "")
+        msg = err.get("msg", "").replace("Value error, ", "")
 
         if error_type == "missing":
             details_list.append(f"El campo '{field_path}' es obligatorio")
         elif error_type == "string_too_short":
             details_list.append(f"El campo '{field_path}' no puede estar vacío")
         elif error_type == "value_error":
-            details_list.append(f"El campo '{field_path}': {err.get('msg', '').replace('Value error, ', '')}")
+            details_list.append(msg)
         else:
-            details_list.append(f"El campo '{field_path}': {err.get('msg', '')}")
+            details_list.append(f"El campo '{field_path}': {msg}")
 
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
