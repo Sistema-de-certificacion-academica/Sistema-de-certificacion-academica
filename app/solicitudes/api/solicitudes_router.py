@@ -4,12 +4,9 @@ from typing import Optional
 from app.core.dependencies import require_estudiante, require_estudiante_o_admin, require_admin
 from app.core.responses import success_response, error_response
 from app.solicitudes.domain.solicitudes import SolicitudCreate, ActualizarEstadoRequest
-from app.solicitudes.services.solicitudes_service import (
-    solicitud_service, ConflictError, PermisoError, MotivoRequeridoError
-)
+from app.solicitudes.services.solicitudes_service import (solicitud_service, ConflictError, PermisoError, MotivoRequeridoError)
 
 router = APIRouter(prefix="/api/v1/solicitudes", tags=["Solicitudes"])
-
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 def crear_solicitud(data: SolicitudCreate, current_user: dict = Depends(require_estudiante)):
@@ -23,7 +20,6 @@ def crear_solicitud(data: SolicitudCreate, current_user: dict = Depends(require_
             content=error_response(409, "No fue posible crear la solicitud", "CONFLICT", str(e))
         )
 
-
 @router.get("", status_code=status.HTTP_200_OK)
 def listar_solicitudes(estado: Optional[str] = None, current_user: dict = Depends(require_admin)):
     try:
@@ -35,7 +31,6 @@ def listar_solicitudes(estado: Optional[str] = None, current_user: dict = Depend
             status_code=status.HTTP_400_BAD_REQUEST,
             content=error_response(400, "No fue posible listar las solicitudes", "BAD_REQUEST", str(e))
         )
-
 
 @router.get("/{solicitud_id}", status_code=status.HTTP_200_OK)
 def consultar_solicitud(solicitud_id: int, current_user: dict = Depends(require_estudiante_o_admin)):
@@ -54,7 +49,6 @@ def consultar_solicitud(solicitud_id: int, current_user: dict = Depends(require_
             status_code=status.HTTP_404_NOT_FOUND,
             content=error_response(404, "No fue posible consultar la solicitud", "NOT_FOUND", str(e))
         )
-
 
 @router.delete("/{solicitud_id}", status_code=status.HTTP_200_OK)
 def cancelar_solicitud(solicitud_id: int, current_user: dict = Depends(require_estudiante)):
@@ -78,10 +72,8 @@ def cancelar_solicitud(solicitud_id: int, current_user: dict = Depends(require_e
             content=error_response(404, "No fue posible cancelar la solicitud", "NOT_FOUND", str(e))
         )
 
-
 @router.put("/{solicitud_id}/estado", status_code=status.HTTP_200_OK)
-def aprobar_rechazar_solicitud(solicitud_id: int, data: ActualizarEstadoRequest,
-                                current_user: dict = Depends(require_admin)):
+def aprobar_rechazar_solicitud(solicitud_id: int, data: ActualizarEstadoRequest, current_user: dict = Depends(require_admin)):
     try:
         data_response = solicitud_service.aprobar_rechazar_solicitud(solicitud_id, data)
         estado = data.estado

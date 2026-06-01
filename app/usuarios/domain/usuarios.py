@@ -9,7 +9,7 @@ ROLES_ACTUALIZABLES = frozenset({"ESTUDIANTE", "ADMINISTRADOR"})
 
 class User:
     def __init__(self, id: int, nombre: str, correo: str, password: str,
-                 rol: str, activo: bool = True,
+                 rol: str, activo: bool = True, programa_academico: str = None,
                  bloqueado_hasta: datetime = None,
                  intentos_fallidos: int = 0):
         self.id = id
@@ -20,6 +20,8 @@ class User:
         self.activo = activo
         self.bloqueado_hasta = bloqueado_hasta
         self.intentos_fallidos = intentos_fallidos
+        self.programa_academico = programa_academico
+
 
     def esta_bloqueado(self) -> bool:
         if self.bloqueado_hasta is None:
@@ -46,6 +48,7 @@ class UserCreate(BaseModel):
     correo: str = Field(..., min_length=1)
     password: str = Field(..., min_length=1)
     rol: str
+    programa_academico: Optional[str] = None
 
     @field_validator("correo")
     @classmethod
@@ -67,6 +70,7 @@ class UserResponse(BaseModel):
     correo: str
     rol: str
     activo: bool
+    programa_academico: Optional[str] = None
 
 class UserUpdate(BaseModel):
     model_config = ConfigDict(extra='ignore')
