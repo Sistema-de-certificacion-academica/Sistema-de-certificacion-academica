@@ -78,3 +78,5 @@ class UserRepository:
         if rol:
             return [u for u in self._users if u.rol == rol]
         return self._users.copy()
+    
+usuario_repository = UserRepository()

@@ -8,33 +8,7 @@ class CertificateRepository:
     _seeded: bool = False
 
     def __init__(self):
-        if not type(self)._seeded:
-            self._seed()
-            type(self)._seeded = True
-
-    def _seed(self):
-        iniciales = [
-            Certificate(
-                id=1, uuid=str(uuid4()), solicitud_id=1, plantilla_id=1,
-                estado="GENERADO", fecha_emision="2026-03-18T10:00:00Z",
-                nombre_estudiante="Erick Gutierrez",
-                programa_academico="Tecnología en Sistemas"
-            ),
-            Certificate(
-                id=2, uuid=str(uuid4()), solicitud_id=2, plantilla_id=1,
-                estado="GENERADO", fecha_emision="2026-02-10T09:30:00Z",
-                nombre_estudiante="Hansel Rodriguez",
-                programa_academico="Ingeniería de Software"
-            ),
-            Certificate(
-                id=3, uuid=str(uuid4()), solicitud_id=3, plantilla_id=1,
-                estado="GENERADO", fecha_emision="2026-01-15T14:20:00Z",
-                nombre_estudiante="Carlos Perez",
-                programa_academico="Administración de Sistemas"
-            ),
-        ]
-        type(self)._certificados.extend(iniciales)
-        type(self)._next_id = 4
+        pass
 
     def obtener_todos(self) -> list[Certificate]:
         return self._certificados.copy()
@@ -45,9 +19,8 @@ class CertificateRepository:
     def obtener_por_uuid(self, uuid: str) -> Optional[Certificate]:
         return next((c for c in self._certificados if c.uuid == uuid), None)
 
-    def crear(self, solicitud_id: int, plantilla_id: int, uuid: str,
-              fecha_emision: str, estado: str = "GENERADO",
-              ruta_pdf: str = None) -> Certificate:
+    def crear(self, solicitud_id: int, plantilla_id: int, uuid: str, fecha_emision: str, estado: str = "GENERADO",
+              ruta_pdf: str = None, nombre_estudiante: str = None,  programa_academico: str = None) -> Certificate:
         certificado = Certificate(
             id=type(self)._next_id,
             uuid=uuid,
@@ -56,6 +29,8 @@ class CertificateRepository:
             estado=estado,
             fecha_emision=fecha_emision,
             ruta_pdf=ruta_pdf,
+            nombre_estudiante=nombre_estudiante,   
+            programa_academico=programa_academico,
         )
         type(self)._certificados.append(certificado)
         type(self)._next_id += 1
