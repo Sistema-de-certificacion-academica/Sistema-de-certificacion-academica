@@ -1,111 +1,88 @@
-import uuid
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, Depends, status, Response
+from fastapi.responses import JSONResponse
 from app.core.dependencies import require_estudiante_o_admin
-from app.repositorio.services.repositorio_service import repositorio_service
-from datetime import datetime
+from app.core.responses import success_response, error_response
+from app.repositorio.services.repositorio_service import (repositorio_service, CertificadoAnuladoError, AccesoDenegadoError, UUIDInvalidoError)
 
-router = APIRouter(
-    prefix="/api/v1/repositorio",
-    tags=["Repositorio"]
-)
-
+router = APIRouter(prefix="/api/v1/repositorio", tags=["Repositorio"])
 
 @router.get("/certificados/{uuid}", status_code=status.HTTP_200_OK)
-def buscar_certificado(
-    uuid: str,
-    current_user: dict = Depends(require_estudiante_o_admin)
-):
+def buscar_certificado(uuid: str, current_user: dict = Depends(require_estudiante_o_admin)):
     try:
-        usuario_id = current_user.get("id")
-        rol = current_user.get("rol")
-        return repositorio_service.buscar_certificado_por_uuid(uuid, usuario_id, rol)
-    except PermissionError as e:
-        raise HTTPException(
+        data = repositorio_service.buscar_certificado_por_uuid(
+            uuid,
+            current_user.get("id"),
+            current_user.get("rol"),
+        )
+        return success_response(200, "Certificado encontrado", data)
+    except AccesoDenegadoError as e:
+        return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=str(e)
+            content=error_response(403, "Acceso denegado", "FORBIDDEN", str(e)),
         )
     except ValueError as e:
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
+            content=error_response(404, "No fue posible encontrar el certificado", "NOT_FOUND", str(e)),
         )
-
 
 @router.get("/estudiantes/{id}", status_code=status.HTTP_200_OK)
-def consultar_historial(
-    id: int,
-    current_user: dict = Depends(require_estudiante_o_admin)
-):
+def consultar_historial(id: int, current_user: dict = Depends(require_estudiante_o_admin)):
     try:
-        usuario_id = current_user.get("id")
-        rol = current_user.get("rol")
-        return repositorio_service.obtener_historial_estudiante(id, usuario_id, rol)
-    except PermissionError as e:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail={
-                "success": False,
-                "statusCode": 403,
-                "message": "Acceso denegado",
-                "error": {
-                    "error_code": "FORBIDDEN",
-                    "details": str(e),
-                    "timestamp": datetime.utcnow().isoformat() + "Z"
-                }
-            }
+        data = repositorio_service.obtener_historial_estudiante(
+            id,
+            current_user.get("id"),
+            current_user.get("rol"),
         )
-
+        if not data:
+            return success_response(200, "El estudiante no tiene certificados emitidos", [])
+        return success_response(200, "Historial de certificados encontrado", data)
+    except AccesoDenegadoError as e:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content=error_response(403, "Acceso denegado", "FORBIDDEN", str(e)))
 
 @router.get("/metadatos/{uuid}", status_code=status.HTTP_200_OK)
 def consultar_metadatos(uuid: str):
     try:
-        uuid.UUID(uuid)
-    except ValueError:
-        raise HTTPException(
+        data = repositorio_service.obtener_metadatos_publicos(uuid)
+        return success_response(200, "Metadatos del certificado encontrados", data)
+    except UUIDInvalidoError as e:
+        return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El formato del UUID no es válido"
-        )
-
-    try:
-        return repositorio_service.obtener_metadatos_publicos(uuid)
+            content=error_response(400, "No fue posible consultar los metadatos", "BAD_REQUEST", str(e)))
     except ValueError as e:
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
-
+            content=error_response(404, "No fue posible consultar los metadatos", "NOT_FOUND", str(e)))
 
 @router.get("/descarga/{uuid}", status_code=status.HTTP_200_OK)
-def descargar_certificado(
-    uuid: str,
-    current_user: dict = Depends(require_estudiante_o_admin)
-):
-    usuario_id = current_user.get("id")
-    rol = current_user.get("rol")
-
+def descargar_certificado(uuid: str, current_user: dict = Depends(require_estudiante_o_admin)):
     try:
-        ruta = repositorio_service.descargar_pdf_certificado(uuid, usuario_id, rol)
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
+        pdf_bytes = repositorio_service.descargar_pdf_certificado(
+            uuid,
+            current_user.get("id"),
+            current_user.get("rol"),
         )
-    except RuntimeError as e:
-        raise HTTPException(
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f'attachment; filename="certificado_{uuid}.pdf"'
+            },
+        )
+    except CertificadoAnuladoError as e:
+        return JSONResponse(
             status_code=status.HTTP_409_CONFLICT,
-            detail=str(e)
+            content=error_response(409, "No fue posible descargar el certificado", "CONFLICT", str(e)),
         )
-    except PermissionError as e:
-        raise HTTPException(
+    except AccesoDenegadoError as e:
+        return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=str(e)
+            content=error_response(403, "Acceso denegado", "FORBIDDEN", str(e)),
         )
-
-    return FileResponse(
-        path=ruta,
-        media_type="application/pdf",
-        headers={
-            "Content-Disposition": f'attachment; filename="certificado_{uuid}.pdf"'
-        }
-    )
+    except ValueError as e:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=error_response(404, "No fue posible descargar el certificado", "NOT_FOUND", str(e)),
+        )
