@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.core.dependencies import require_admin
 from app.core.responses import success_response, error_response
-from app.certificados.domain.certificados import CertificateCreate, CertificatePatchEstado
+from app.certificados.domain.certificados import CertificateCreate
 from app.certificados.services.certificados_service import (
     certificate_service, SolicitudNoAprobadaError,
     PlantillaInactivaError, CertificadoYaAnuladoError
@@ -33,11 +33,10 @@ def generar_certificado(data: CertificateCreate, current_user: dict = Depends(re
         )
 
 
-@router.patch("/{id}/estado", status_code=status.HTTP_200_OK)
-def anular_certificado(id: int, data: CertificatePatchEstado,
-                       current_user: dict = Depends(require_admin)):
+@router.patch("/{id}/anular", status_code=status.HTTP_200_OK)
+def anular_certificado(id: int , current_user: dict = Depends(require_admin)):
     try:
-        data_response = certificate_service.anular_certificado(id, data.estado)
+        data_response = certificate_service.anular_certificado(id)
         return success_response(200, "Certificado anulado correctamente", data_response)
     except CertificadoYaAnuladoError as e:
         return JSONResponse(

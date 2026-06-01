@@ -17,8 +17,7 @@ ESTADOS_SOLICITUD = frozenset({
 })
 
 class Solicitud:
-    def __init__(self, id: int, usuario_id: int, tipo_certificado: str,
-                 comprobante_pago: str, estado: str = "PENDIENTE",
+    def __init__(self, id: int, usuario_id: int, tipo_certificado: str, comprobante_pago: str, estado: str = "PENDIENTE",
                  fecha_solicitud: str = None, motivo_rechazo: str = None):
         self.id = id
         self.usuario_id = usuario_id
@@ -51,7 +50,6 @@ class Solicitud:
             "tipo_certificado": self.tipo_certificado,
             "estado": self.estado,
             "fecha_solicitud": self.fecha_solicitud
-            # ← sin comprobante_pago
         }
         if self.motivo_rechazo:
             data["motivo_rechazo"] = self.motivo_rechazo
