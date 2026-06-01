@@ -65,6 +65,16 @@ class CertificateService:
             programa_academico=usuario.programa_academico,  
         )
 
+        self.repositorio_repo.crear(
+        uuid=uuid_value,
+        certificado_id=certificado.id,
+        usuario_id=solicitud.usuario_id,
+        tipo_certificado=solicitud.tipo_certificado,
+        fecha_emision=fecha_emision,
+        estado="GENERADO",
+        ruta_archivo=ruta_pdf,
+        )
+
         self.plantilla_repo.marcar_como_usada(plantilla.id)
         return certificado.to_response()
 
