@@ -20,7 +20,7 @@ class CertificateRepository:
         return next((c for c in self._certificados if c.uuid == uuid), None)
 
     def crear(self, solicitud_id: int, plantilla_id: int, uuid: str, fecha_emision: str, estado: str = "GENERADO",
-              ruta_pdf: str = None, nombre_estudiante: str = None,  programa_academico: str = None) -> Certificate:
+              ruta_pdf: str = None, nombre_estudiante: str = None) -> Certificate:
         certificado = Certificate(
             id=type(self)._next_id,
             uuid=uuid,
@@ -30,7 +30,6 @@ class CertificateRepository:
             fecha_emision=fecha_emision,
             ruta_pdf=ruta_pdf,
             nombre_estudiante=nombre_estudiante,   
-            programa_academico=programa_academico,
         )
         type(self)._certificados.append(certificado)
         type(self)._next_id += 1

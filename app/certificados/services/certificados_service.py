@@ -62,7 +62,6 @@ class CertificateService:
             fecha_emision=fecha_emision,
             ruta_pdf=ruta_pdf,
             nombre_estudiante=usuario.nombre,
-            programa_academico=usuario.programa_academico,  
         )
 
         self.repositorio_repo.crear(
