@@ -6,7 +6,8 @@ from app.plantillas.repository.plantillas_repo import plantilla_repository
 from app.solicitudes.repository.solicitudes_repo import solicitud_repository
 from app.repositorio.repository.repositorio_repo import repositorio_repository
 from app.usuarios.repository.usuario_repo import usuario_repository 
-
+from app.verificaciones.repository.verificaciones_repo import verificacion_repository
+import hashlib
 
 class SolicitudNoAprobadaError(Exception):
     pass
@@ -20,29 +21,26 @@ class CertificadoYaAnuladoError(Exception):
 
 class CertificateService:
 
-    def __init__(self, repo: CertificateRepository,
-                 solicitud_repo, plantilla_repo,
-                 repositorio_repo, usuario_repo):  
+    def __init__(self, repo, solicitud_repo, plantilla_repo,
+                 repositorio_repo, usuario_repo, verificacion_repo):  
         self.repo = repo
         self.solicitud_repo = solicitud_repo
         self.plantilla_repo = plantilla_repo
         self.repositorio_repo = repositorio_repo
-        self.usuario_repo = usuario_repo 
+        self.usuario_repo = usuario_repo
+        self.verificacion_repo = verificacion_repo
+ 
 
     def generar_certificado(self, data: CertificateCreate) -> dict:
         solicitud = self.solicitud_repo.get_by_id(data.solicitud_id)
         if not solicitud:
             raise ValueError("No existe una solicitud con el id proporcionado")
         if solicitud.estado != "APROBADA":
-            raise SolicitudNoAprobadaError(
-                "Solo se pueden generar certificados de solicitudes aprobadas"
-            )
+            raise SolicitudNoAprobadaError("Solo se pueden generar certificados de solicitudes aprobadas")
 
         plantilla = self.plantilla_repo.get_activa_by_tipo(solicitud.tipo_certificado)
         if not plantilla:
-            raise ValueError(
-                "No existe una plantilla activa para el tipo de certificado de esta solicitud"
-            )
+            raise PlantillaInactivaError("No existe una plantilla activa para el tipo de certificado de esta solicitud")
 
         usuario = self.usuario_repo.get_by_id(solicitud.usuario_id)
         if not usuario:
@@ -74,6 +72,17 @@ class CertificateService:
         ruta_archivo=ruta_pdf,
         )
 
+        hash_archivo = hashlib.sha256(f"certificado_{usuario.nombre.split()[0].lower()}".encode()).hexdigest()
+
+        self.verificacion_repo.sincronizar_certificado(
+            uuid=uuid_value,
+            estudiante=usuario.nombre,
+            tipo_certificado=solicitud.tipo_certificado,
+            fecha_emision=fecha_emision,
+            estado="DISPONIBLE",
+            hash_archivo=hash_archivo,
+        )
+
         self.plantilla_repo.marcar_como_usada(plantilla.id)
         return certificado.to_response()
 
@@ -86,6 +95,15 @@ class CertificateService:
 
         certificado = self.repo.actualizar_estado(certificado_id, "ANULADO")
         self.repositorio_repo.actualizar_estado(certificado.uuid, "ANULADO")
+
+        self.verificacion_repo.sincronizar_certificado(
+            uuid=certificado.uuid,
+            estudiante=certificado.nombre_estudiante or "",
+            tipo_certificado="",
+            fecha_emision=certificado.fecha_emision,
+            estado="ANULADO",
+            hash_archivo="",
+        )
         return certificado.to_anulado_response()
 
 
@@ -95,4 +113,5 @@ certificate_service = CertificateService(
     plantilla_repo=plantilla_repository,
     repositorio_repo=repositorio_repository,
     usuario_repo=usuario_repository,  
+    verificacion_repo=verificacion_repository,
 )
