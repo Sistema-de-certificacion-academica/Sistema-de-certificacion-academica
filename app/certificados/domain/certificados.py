@@ -3,9 +3,8 @@ from typing import Optional
 
 class Certificate:
     def __init__(self, id: int, uuid: str, solicitud_id: int, plantilla_id: int,
-                 estado: str = "DISPONIBLE", fecha_emision: str = None,
-                 ruta_pdf: str = None, nombre_estudiante: str = None,
-                 programa_academico: str = None):
+                 estado: str = "GENERADO", fecha_emision: str = None,
+                 ruta_pdf: str = None, nombre_estudiante: str = None):
         self.id = id
         self.uuid = uuid
         self.solicitud_id = solicitud_id
@@ -14,7 +13,6 @@ class Certificate:
         self.fecha_emision = fecha_emision
         self.ruta_pdf = ruta_pdf
         self.nombre_estudiante = nombre_estudiante
-        self.programa_academico = programa_academico
 
     def esta_anulado(self) -> bool:
         return self.estado == "ANULADO"
@@ -31,8 +29,7 @@ class Certificate:
         }
         if self.nombre_estudiante:
             data["estudiante"] = {
-                "nombre": self.nombre_estudiante,
-                "programa_academico": self.programa_academico
+                "nombre": self.nombre_estudiante
             }
         return data
 
@@ -41,7 +38,6 @@ class Certificate:
         if self.nombre_estudiante:
             estudiante = {
                 "nombre": self.nombre_estudiante,
-                "programa_academico": self.programa_academico,
             }
         return {
             "id": self.id,
